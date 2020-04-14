@@ -1,0 +1,64 @@
+{
+    "@context": [
+        "https://doi.org/10.5063/schema/codemeta-2.0",
+        "http://schema.org",
+        {
+            "entryPoints": { "@reverse": "schema:actionApplication" },
+            "interfaceType": { "@id": "codemeta:interfaceType" }
+        }
+    ],
+    "@type": "SoftwareSourceCode",
+    "identifier": "align",
+    "name": "Forced Alignment 2",
+    "version": "0.2",
+    "description": "This webservice provides an output file with word alignments given an NL speech recording and a transcription.",
+    "license": "unknown",
+	"url": "https://github.com/to_be_decided",
+    "producer": {
+        "@id": "https://www.ru.nl/clst",
+        "@type": "Organization",
+        "name": "Centre for Language and Speech Technology",
+        "url": "https://www.ru.nl/clst",
+        "parentOrganization": {
+            "@id": "https://www.ru.nl/cls",
+            "@type": "Organization",
+            "name": "Centre for Language Studies",
+            "url": "https://www.ru.nl/cls",
+            "parentOrganization": {
+                "@id": "https://www.ru.nl",
+                "name": "Radboud University",
+                "@type": "Organization",
+                "url": "https://www.ru.nl",
+                "location": {
+                    "@type": "Place",
+                    "name": "Nijmegen"
+                }
+            }
+
+        }
+    },
+    "author": [
+		{
+			"@type": "Person",
+			"givenName": "Louis",
+			"familyName": "ten Bosch",
+			"email": "l.tenbosch@let.ru.nl",
+			"affiliation": { "@id": "https://www.ru.nl/clst" }
+		}
+	],
+	"sourceOrganization": { "@id": "https://www.ru.nl/clst" },
+	"operatingSystem": "POSIX",
+	"codeRepository": "https://github.com/to_be_decided",
+    "softwareRequirements": [
+        {
+			"@type": "SoftwareApplication",
+			"identifier": "kaldi",
+			"name": "kaldi"
+		}
+	],
+	"readme": "",
+	"issueTracker": "",
+	"developmentStatus": "active",
+	"keywords":  [ "speech recognition", "alignment" ],
+	"dateCreated": "2020-03"
+}

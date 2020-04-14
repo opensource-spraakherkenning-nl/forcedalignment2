@@ -1,0 +1,4 @@
+root: "{{VIRTUAL_ENV}}/forcedalignment.clam"
+resourcedirectory: "/vol/tensusers/ltenbosch/webservices/KALDI/resources2"
+scratchdirectory: "/tmp"
+port: 8802

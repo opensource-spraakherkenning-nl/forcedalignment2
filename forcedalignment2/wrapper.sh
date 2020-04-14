@@ -14,24 +14,38 @@
 
 # for the moment: no time stamps yet
 
-#INPUTDIRECTORY=$1
-#SCRATCHDIRECTORY=$2
-#RESOURCESDIRECTORY=$3
-#OUTPUTDIRECTORY=$4
+INPUTDIRECTORY=$1
+SCRATCHDIRECTORY=$2
+RESOURCESDIRECTORY=$3
+OUTPUTDIRECTORY=$4
+WEBSERVICEDIRECTORY=$5
 
 # put everything in /vol/tensusers/ltenbosch/webservices/KALDI/resources2
 
-INPUTDIRECTORY=/vol/tensusers/ltenbosch/FA_webservice_in
-SCRATCHDIRECTORY=/tmp
-backgroundlexicon=/home/ltenbosch/clst-asr-fa/lexicon_from_MARIO.txt
-RESOURCESDIRECTORY=/vol/tensusers/ltenbosch/clst-asr_forced-aligner/kaldi/egs/clst-asr_forced-aligner/s5
-OUTPUTDIRECTORY=$INPUTDIRECTORY
+#INPUTDIRECTORY=/vol/tensusers/ltenbosch/FA_webservice_in
+#SCRATCHDIRECTORY=/tmp
+##RESOURCESDIRECTORY=/vol/tensusers/ltenbosch/clst-asr_forced-aligner/kaldi/egs/clst-asr_forced-aligner/s5
+#RESOURCESDIRECTORY=/vol/tensusers/ltenbosch/webservices/KALDI/resources2
 
-configfile=/home/ltenbosch/clst-asr-fa/align_config.rc
-scriptdir=/home/ltenbosch
-mothertg=/home/ltenbosch/KALDI_FA_Mario/MOTHER.tg
-KALDIbin=/vol/tensusers2/eyilmaz/local/bin
-G2PFSTfile=/home/ltenbosch/KALDI_g2p/train_dutch/model.fst
+#OUTPUTDIRECTORY=$INPUTDIRECTORY
+
+
+#backgroundlexicon=/home/ltenbosch/clst-asr-fa/lexicon_from_MARIO.txt
+#configfile=/home/ltenbosch/clst-asr-fa/align_config.rc
+#scriptdir=/home/ltenbosch
+#mothertg=/home/ltenbosch/KALDI_FA_Mario/MOTHER.tg
+#KALDIbin=/vol/tensusers2/eyilmaz/local/bin
+#G2PFSTfile=/home/ltenbosch/KALDI_g2p/train_dutch/model.fst
+
+backgroundlexicon=$RESOURCESDIRECTORY/lexicons/lexicon_from_MARIO.txt
+configfile=$RESOURCESDIRECTORY/config/align_config.rc
+scriptdir=$RESOURCESDIRECTORY
+mothertg=$RESOURCESDIRECTORY/textgrids/MOTHER.tg
+KALDIbin=$RESOURCESDIRECTORY/KALDIbin
+G2PFSTfile=$RESOURCESDIRECTORY/G2PFST/Dutch/model.fst
+KALDIbin2=$RESOURCESDIRECTORY/KALDIbin2
+
+cd $WEBSERVICEDIRECTORY
 
 dos2unix $INPUTDIRECTORY/*txt
 dos2unix $INPUTDIRECTORY/*tg
@@ -53,7 +67,7 @@ cat $backgroundlexicon $OOVlexout > $foregroundlexicon
 
 pSPN=0.05
 pSIL=0.05
-./wav_tg2ali.sh $configfile $INPUTDIRECTORY $pSPN $pSIL $foregroundlexicon $RESOURCESDIRECTORY
+./wav_tg2ali.sh $configfile $INPUTDIRECTORY $pSPN $pSIL $foregroundlexicon $RESOURCESDIRECTORY $KALDIbin2
 # X.wav + X.tg -> $INPUTDIRECTORY/log/final_ali.txt
 
 ./finalali2ali.sh $INPUTDIRECTORY/log/final_ali.txt $INPUTDIRECTORY
@@ -62,9 +76,9 @@ pSIL=0.05
 ./ali2ali_w.sh $INPUTDIRECTORY
 # X.ali + X.one2one_table -> X.aliphw2
 
-./ali_w2tar.sh $INPUTDIRECTORY all.tar
+./ali_w2tar.sh $INPUTDIRECTORY $INPUTDIRECTORY/all.tar
 # all X.ali_phw2 into all.tar
 
 
-
+cd -
 
