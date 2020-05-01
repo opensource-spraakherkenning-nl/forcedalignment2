@@ -8,7 +8,7 @@ pSPN=$3
 pSIL=$4
 FAlexicon=$5
 RESOURCESDIRECTORY=$6
-KALDIbin2=$7
+KALDIbin2=$7 # should not be necessary - unused
 
 ### ugly cd here
 #cd /vol/tensusers/ltenbosch/clst-asr_forced-aligner/kaldi/egs/clst-asr_forced-aligner/s5

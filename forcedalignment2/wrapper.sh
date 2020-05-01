@@ -41,9 +41,9 @@ backgroundlexicon=$RESOURCESDIRECTORY/lexicons/lexicon_from_MARIO.txt
 configfile=$RESOURCESDIRECTORY/config/align_config.rc
 scriptdir=$RESOURCESDIRECTORY
 mothertg=$RESOURCESDIRECTORY/textgrids/MOTHER.tg
-KALDIbin=$RESOURCESDIRECTORY/KALDIbin
+KALDIbin=__not_used__ # $RESOURCESDIRECTORY/KALDIbin
 G2PFSTfile=$RESOURCESDIRECTORY/G2PFST/Dutch/model.fst
-KALDIbin2=$RESOURCESDIRECTORY/KALDIbin2
+KALDIbin2=__not_used__# $RESOURCESDIRECTORY/KALDIbin2 # only for ali-to-phones
 
 cd $WEBSERVICEDIRECTORY
 

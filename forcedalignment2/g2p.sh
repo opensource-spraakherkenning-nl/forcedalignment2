@@ -14,7 +14,7 @@ touch $OOVlexout
 
 # using phonetisaurus
 #KALDIbin=/vol/tensusers2/eyilmaz/local/bin
-export PATH=$KALDIbin:$PATH
+# export PATH=$KALDIbin:$PATH # use of KALDIbin should not avoided
 
 for txtfile in $(ls $workingdir/*txt); do
 
