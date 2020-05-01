@@ -43,7 +43,7 @@ scriptdir=$RESOURCESDIRECTORY
 mothertg=$RESOURCESDIRECTORY/textgrids/MOTHER.tg
 KALDIbin=__not_used__ # $RESOURCESDIRECTORY/KALDIbin
 G2PFSTfile=$RESOURCESDIRECTORY/G2PFST/Dutch/model.fst
-KALDIbin2=__not_used__# $RESOURCESDIRECTORY/KALDIbin2 # only for ali-to-phones
+KALDIbin2=__not_used__ # $RESOURCESDIRECTORY/KALDIbin2 # only for ali-to-phones
 
 cd $WEBSERVICEDIRECTORY
 
