@@ -19,6 +19,7 @@ SCRATCHDIRECTORY=$2
 RESOURCESDIRECTORY=$3
 OUTPUTDIRECTORY=$4
 WEBSERVICEDIRECTORY=$5
+STATUSFILE=$6
 
 # put everything in /vol/tensusers/ltenbosch/webservices/KALDI/resources2
 
@@ -50,17 +51,24 @@ cd $WEBSERVICEDIRECTORY
 dos2unix $INPUTDIRECTORY/*txt
 dos2unix $INPUTDIRECTORY/*tg
 
+echo dos2unix >> $STATUSFILE
 
 ./tg2txt.sh $INPUTDIRECTORY
 # X.tg -> X.txt
 
+echo tg2txt >> $STATUSFILE
+
 ./txt2tg.sh $INPUTDIRECTORY $scriptdir $mothertg
 # writes X.txt to X.tg for all X -- also creates X.one2one_table. Assumes all wav.X available.
+
+echo txt2tg >> $STATUSFILE
 
 OOVlexout=$INPUTDIRECTORY/OOVlex.out
 ./g2p.sh $INPUTDIRECTORY $backgroundlexicon $OOVlexout $SCRATCHDIRECTORY $scriptdir $KALDIbin $G2PFSTfile
 #detect oovs in all X.txt
 #apply p-saurus
+
+echo g2p >> $STATUSFILE
 
 foregroundlexicon=$INPUTDIRECTORY/foregroundlexicon.lex
 cat $backgroundlexicon $OOVlexout > $foregroundlexicon
@@ -70,15 +78,23 @@ pSIL=0.05
 ./wav_tg2ali.sh $configfile $INPUTDIRECTORY $pSPN $pSIL $foregroundlexicon $RESOURCESDIRECTORY $KALDIbin2
 # X.wav + X.tg -> $INPUTDIRECTORY/log/final_ali.txt
 
+
+echo wav_tg2ali >> $STATUSFILE
+
 ./finalali2ali.sh $INPUTDIRECTORY/log/final_ali.txt $INPUTDIRECTORY
 # final_ali.txt -> X.ali
+
+echo finalali2ali >> $STATUSFILE
 
 ./ali2ali_w.sh $INPUTDIRECTORY
 # X.ali + X.one2one_table -> X.aliphw2
 
+echo ali2ali_w >> $STATUSFILE
+
 ./ali_w2tar.sh $INPUTDIRECTORY $INPUTDIRECTORY/all.tar
 # all X.ali_phw2 into all.tar
 
+echo ali_w2tar >> $STATUSFILE
 
 cd -
 
