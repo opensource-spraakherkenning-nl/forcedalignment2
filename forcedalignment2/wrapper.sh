@@ -75,7 +75,7 @@ cat $backgroundlexicon $OOVlexout > $foregroundlexicon
 
 pSPN=0.05
 pSIL=0.05
-./wav_tg2ali.sh $configfile $INPUTDIRECTORY $pSPN $pSIL $foregroundlexicon $RESOURCESDIRECTORY $KALDIbin2
+./wav_tg2ali.sh $configfile $INPUTDIRECTORY $pSPN $pSIL $foregroundlexicon $RESOURCESDIRECTORY $KALDIbin2 $STATUSFILE
 # X.wav + X.tg -> $INPUTDIRECTORY/log/final_ali.txt
 
 
