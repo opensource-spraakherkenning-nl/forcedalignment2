@@ -21,6 +21,14 @@ OUTPUTDIRECTORY=$4
 WEBSERVICEDIRECTORY=$5
 STATUSFILE=$6
 
+
+echo input dir $INPUTDIRECTORY
+echo scratch dir $SCRATCHDIRECTORY
+echo resources dir $RESOURCESDIRECTORY
+echo output dir $OUTPUTDIRECTORY
+echo webservice dir $WEBSERVICEDIRECTORY
+echo statusfile $STATUSFILE
+
 # put everything in /vol/tensusers/ltenbosch/webservices/KALDI/resources2
 
 #INPUTDIRECTORY=/vol/tensusers/ltenbosch/FA_webservice_in
@@ -46,23 +54,29 @@ KALDIbin=__not_used__ # $RESOURCESDIRECTORY/KALDIbin
 G2PFSTfile=$RESOURCESDIRECTORY/G2PFST/Dutch/model.fst
 KALDIbin2=__not_used__ # $RESOURCESDIRECTORY/KALDIbin2 # only for ali-to-phones
 
+PLDIR=$RESOURCESDIRECTORY/perl
+
 cd $WEBSERVICEDIRECTORY
 
-dos2unix $INPUTDIRECTORY/*txt
-dos2unix $INPUTDIRECTORY/*tg
+#dos2unix $INPUTDIRECTORY/*txt
+#dos2unix $INPUTDIRECTORY/*tg
 
-echo dos2unix >> $STATUSFILE
+#echo dos2unix >> $STATUSFILE
 
-./tg2txt.sh $INPUTDIRECTORY
+#./tg2txt.sh $INPUTDIRECTORY $PLDIR
 # X.tg -> X.txt
+#echo tg2txt >> $STATUSFILE
 
-echo tg2txt >> $STATUSFILE
+#echo een twee drie > $INPUTDIRECTORY/file1.txt
+#this was a debug repair
+
 
 ./txt2tg.sh $INPUTDIRECTORY $scriptdir $mothertg
 # writes X.txt to X.tg for all X -- also creates X.one2one_table. Assumes all wav.X available.
 
 echo txt2tg >> $STATUSFILE
 
+KALDIbin=/vol/tensusers2/eyilmaz/local/bin # kick this line out if in webservice
 OOVlexout=$INPUTDIRECTORY/OOVlex.out
 ./g2p.sh $INPUTDIRECTORY $backgroundlexicon $OOVlexout $SCRATCHDIRECTORY $scriptdir $KALDIbin $G2PFSTfile
 #detect oovs in all X.txt
@@ -71,13 +85,12 @@ OOVlexout=$INPUTDIRECTORY/OOVlex.out
 echo g2p >> $STATUSFILE
 
 foregroundlexicon=$INPUTDIRECTORY/foregroundlexicon.lex
-cat $backgroundlexicon $OOVlexout > $foregroundlexicon
+cat $backgroundlexicon $OOVlexout | sort -u > $foregroundlexicon
 
 pSPN=0.05
 pSIL=0.05
 ./wav_tg2ali.sh $configfile $INPUTDIRECTORY $pSPN $pSIL $foregroundlexicon $RESOURCESDIRECTORY $KALDIbin2 $STATUSFILE
 # X.wav + X.tg -> $INPUTDIRECTORY/log/final_ali.txt
-
 
 echo wav_tg2ali >> $STATUSFILE
 
@@ -91,10 +104,10 @@ echo finalali2ali >> $STATUSFILE
 
 echo ali2ali_w >> $STATUSFILE
 
-./ali_w2tar.sh $INPUTDIRECTORY $INPUTDIRECTORY/all.tar
+#./ali_w2tar.sh $INPUTDIRECTORY $INPUTDIRECTORY/all.tar
 # all X.ali_phw2 into all.tar
 
-echo ali_w2tar >> $STATUSFILE
+#echo ali_w2tar >> $STATUSFILE
 
 cd -
 

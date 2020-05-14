@@ -13,8 +13,9 @@ rm -rf $OOVlexout
 touch $OOVlexout
 
 # using phonetisaurus
-#KALDIbin=/vol/tensusers2/eyilmaz/local/bin
-# export PATH=$KALDIbin:$PATH # use of KALDIbin should not avoided
+#KALDIbin was /vol/tensusers2/eyilmaz/local/bin
+## export PATH=$KALDIbin:$PATH # use of KALDIbin should be avoided in service
+echo phonetisaurus PATH in g2p.sh ?
 
 for txtfile in $(ls $workingdir/*txt); do
 
