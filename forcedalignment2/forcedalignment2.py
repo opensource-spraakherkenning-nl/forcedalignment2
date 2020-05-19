@@ -202,6 +202,20 @@ PROFILES = [
             #filename='filename.txt',
             #unique=True #set unique=True if the user may only upload a file for this input template once. Set multi=True if you the user may upload multiple of such files
         ),
+        InputTemplate('LexAddOn', PlainTextFormat,"LexAddOn",
+            StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
+            #StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'), #note that encoding is required if you work with PlainTextFormat
+            #ChoiceParameter(id='language',name='Language',description='The language the text is in', choices=[('en','English'),('nl','Dutch'),('fr','French')]),
+            #StringParameter(id='author',name='Author',description="The author's name", maxlength=100),
+            #InputSource(id='sampledoc', label="Sample Document", path=ROOT+'/inputsources/sampledoc.txt', metadata=PlainTextFormat(None, encoding='utf-8',language='en')),
+            #CharEncodingConverter(id='latin1',label='Convert from Latin-1',charset='iso-8859-1'),
+            #PDFtoTextConverter(id='pdfconv',label='Convert from PDF Document'),
+            #MSWordConverter(id='docconv',label='Convert from MS Word Document'),
+            extension='.txt',
+            required=False,
+            #filename='filename.txt',
+            #unique=True #set unique=True if the user may only upload a file for this input template once. Set multi=True if you the user may upload multiple of such files
+        ),
         InputTemplate('TranscriptionFile', PlainTextFormat,"TranscriptionFile",
             StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'), #note that encoding is required if you work with PlainTextFormat
             #ChoiceParameter(id='language',name='Language',description='The language the text is in', choices=[('en','English'),('nl','Dutch'),('fr','French')]),
@@ -221,7 +235,7 @@ PROFILES = [
         OutputTemplate('FAout',PlainTextFormat,'FAout',
             SetMetaField('encoding','utf-8'), #note that encoding is required if you work with PlainTextFormat
             #removeextensions=[".tg"] #remove these extensions from the associated input prior to appending the output extension
-            extension='.ctm', #set an output extension or set a filename:
+            extension='.aliphw2', #set an output extension or set a filename:
             #filename='filename.stats',
             unique=True,
             #If you want to associate any viewers with your output, then this is the place to do so!

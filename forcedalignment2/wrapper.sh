@@ -4,7 +4,7 @@
 # X.wav + X.txt or X.wav + X.tg or .tar
 # optional: .lexaddon # not now
 
-## call from above: $WEBSERVICEDIR/wrapper.sh $INPUTDIRECTORY $SCRATCHDIRECTORY $RESOURCESDIRECTORY $OUTPUTDIRECTORY
+## call from above: $WEBSERVICEDIR/wrapper.sh $INPUTDIRECTORY $SCRATCHDIRECTORY $RESOURCESDIRECTORY $OUTPUTDIRECTORY $STATUSFILE
 
 # the following is probably not necessary, can be dealt with using CLAM input mechanisms
 #for tarfile in $(ls $INPUTDIRECTORY/*tar); do
@@ -108,6 +108,8 @@ echo ali2ali_w >> $STATUSFILE
 # all X.ali_phw2 into all.tar
 
 #echo ali_w2tar >> $STATUSFILE
+
+./result2outputdir.sh $INPUTDIRECTORY $OUTPUTDIRECTORY
 
 cd -
 
