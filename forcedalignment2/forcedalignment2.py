@@ -212,7 +212,8 @@ PROFILES = [
             #PDFtoTextConverter(id='pdfconv',label='Convert from PDF Document'),
             #MSWordConverter(id='docconv',label='Convert from MS Word Document'),
             extension='.txt',
-            required=False,
+            #required=False,
+            optional=True,
             #filename='filename.txt',
             #unique=True #set unique=True if the user may only upload a file for this input template once. Set multi=True if you the user may upload multiple of such files
         ),
