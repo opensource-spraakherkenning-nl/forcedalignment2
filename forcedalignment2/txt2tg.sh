@@ -21,7 +21,8 @@ for txtfile in $(ls $workingdir/*txt); do
     to=1
   fi
 
-  textA=`cat $txtfile`
+  # here filter out time stamps appearing in the input
+  textA=`cat $txtfile | perl -ne 'chomp; if (!(m/^\s*\[.*\]\s*$/)) {printf("%s\n", $_);}'`
   text=`echo "$textA" | perl $scriptdir/perl/apostrophe2apostrophe.perl | perl $scriptdir/perl/strip_off_punct_v4b.perl | perl $scriptdir/perl/strip_off_CGN_marks.perl | perl -ne 'chomp; printf("%s\n", lc($_));'`
 
   echo $textA | perl -ne 'chomp; @tok=split(/\s+/); for ($i=0; $i <= $#tok; $i++) {printf("%s\n", $tok[$i]);}' > $workingdir/tmpA

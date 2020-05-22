@@ -70,16 +70,15 @@ cd $WEBSERVICEDIRECTORY
 #echo een twee drie > $INPUTDIRECTORY/file1.txt
 #this was a debug repair
 
-
 ./txt2tg.sh $INPUTDIRECTORY $scriptdir $mothertg
-# writes X.txt to X.tg for all X -- also creates X.one2one_table. Assumes all wav.X available.
+# writes X.txt to X.tg for all X -- does normalisation. Also creates X.one2one_table. Assumes all wav.X available.
 
 echo txt2tg >> $STATUSFILE
 
 KALDIbin=/vol/tensusers2/eyilmaz/local/bin # kick this line out if in webservice
 OOVlexout=$INPUTDIRECTORY/OOVlex.out
 ./g2p.sh $INPUTDIRECTORY $backgroundlexicon $OOVlexout $SCRATCHDIRECTORY $scriptdir $KALDIbin $G2PFSTfile
-#detect oovs in all X.txt
+#detect oovs in all X.txt after normalisation
 #apply p-saurus
 
 echo g2p >> $STATUSFILE
@@ -103,6 +102,16 @@ echo finalali2ali >> $STATUSFILE
 # X.ali + X.one2one_table -> X.aliphw2
 
 echo ali2ali_w >> $STATUSFILE
+
+# post processing transformations
+
+#./ali_w2ctm.sh using ali2word_ctm.perl $audiofilename
+#./ali_w2tg.sh using ali2tg_v2.perl
+
+./ali_w2ctm.sh $INPUTDIRECTORY $scriptdir
+# X.aliphw2 -> X.ctm # on wordlevel, requires name audiofile
+./ali_w2tg.sh $INPUTDIRECTORY
+#X.aliphw2 -> X_out.tg
 
 #./ali_w2tar.sh $INPUTDIRECTORY $INPUTDIRECTORY/all.tar
 # all X.ali_phw2 into all.tar
