@@ -110,8 +110,13 @@ echo ali2ali_w >> $STATUSFILE
 
 ./ali_w2ctm.sh $INPUTDIRECTORY $scriptdir
 # X.aliphw2 -> X.ctm # on wordlevel, requires name audiofile
-./ali_w2tg.sh $INPUTDIRECTORY
+
+echo ali_w2ctm >> $STATUSFILE
+
+./ali_w2tg.sh $INPUTDIRECTORY $scriptdir
 #X.aliphw2 -> X_out.tg
+
+echo ali_w2tg >> $STATUSFILE
 
 #./ali_w2tar.sh $INPUTDIRECTORY $INPUTDIRECTORY/all.tar
 # all X.ali_phw2 into all.tar
@@ -119,6 +124,8 @@ echo ali2ali_w >> $STATUSFILE
 #echo ali_w2tar >> $STATUSFILE
 
 ./result2outputdir.sh $INPUTDIRECTORY $OUTPUTDIRECTORY
+
+echo result2outputdir >> $STATUSFILE
 
 cd -
 
