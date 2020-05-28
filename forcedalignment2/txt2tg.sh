@@ -25,10 +25,10 @@ for txtfile in $(ls $workingdir/*txt); do
   # here filter out time stamps appearing in the input
   textA=`cat $txtfile | perl -ne 'use open qw(:std :utf8); use utf8; chomp; if (!(m/^\s*\[.*\]\s*$/)) {printf("%s\n", $_);}'`
 
-  textB=`echo "$testA" | perl $PERLdir/kickout_dangling_punctuation.perl`
+  textB=`echo "$textA" | perl $PERLdir/kickout_dangling_punctuation.perl`
   text=`echo "$textB" | perl $PERLdir/apostrophe2apostrophe.perl | perl $PERLdir/strip_off_punct_v4b.perl | perl $PERLdir/strip_off_CGN_marks.perl | perl -ne 'chomp; printf("%s\n", lc($_));'`
 
-  echo $textA | perl -ne 'chomp; @tok=split(/\s+/); for ($i=0; $i <= $#tok; $i++) {printf("%s\n", $tok[$i]);}' > $workingdir/tmpA
+  echo $textB | perl -ne 'chomp; @tok=split(/\s+/); for ($i=0; $i <= $#tok; $i++) {printf("%s\n", $tok[$i]);}' > $workingdir/tmpA
   echo $text | perl -ne 'chomp; @tok=split(/\s+/); for ($i=0; $i <= $#tok; $i++) {printf("%s\n", $tok[$i]);}' > $workingdir/tmpB
   paste $workingdir/tmpA $workingdir/tmpB > $one2one_table
   

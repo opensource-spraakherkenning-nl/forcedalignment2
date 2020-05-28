@@ -58,8 +58,9 @@ PLDIR=$RESOURCESDIRECTORY/perl
 
 cd $WEBSERVICEDIRECTORY
 
-dos2unix $INPUTDIRECTORY/*txt
-dos2unix $INPUTDIRECTORY/*tg
+# ???
+#dos2unix $INPUTDIRECTORY/*txt
+#dos2unix $INPUTDIRECTORY/*tg
 
 echo dos2unix >> $STATUSFILE
 
