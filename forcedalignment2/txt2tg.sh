@@ -1,8 +1,9 @@
 #!/bin/bash
 
 workingdir=$1
-scriptdir=$2
+PERLdir=$2
 mothertg=$3
+statusfile=$4
 
 for txtfile in $(ls $workingdir/*txt); do
 
@@ -22,16 +23,27 @@ for txtfile in $(ls $workingdir/*txt); do
   fi
 
   # here filter out time stamps appearing in the input
-  textA=`cat $txtfile | perl -ne 'chomp; if (!(m/^\s*\[.*\]\s*$/)) {printf("%s\n", $_);}'`
-  text=`echo "$textA" | perl $scriptdir/perl/apostrophe2apostrophe.perl | perl $scriptdir/perl/strip_off_punct_v4b.perl | perl $scriptdir/perl/strip_off_CGN_marks.perl | perl -ne 'chomp; printf("%s\n", lc($_));'`
+  textA=`cat $txtfile | perl -ne 'use open qw(:std :utf8); use utf8; chomp; if (!(m/^\s*\[.*\]\s*$/)) {printf("%s\n", $_);}'`
+
+  textB=`echo "$testA" | perl $PERLdir/kickout_dangling_punctuation.perl`
+  text=`echo "$textB" | perl $PERLdir/apostrophe2apostrophe.perl | perl $PERLdir/strip_off_punct_v4b.perl | perl $PERLdir/strip_off_CGN_marks.perl | perl -ne 'chomp; printf("%s\n", lc($_));'`
 
   echo $textA | perl -ne 'chomp; @tok=split(/\s+/); for ($i=0; $i <= $#tok; $i++) {printf("%s\n", $tok[$i]);}' > $workingdir/tmpA
   echo $text | perl -ne 'chomp; @tok=split(/\s+/); for ($i=0; $i <= $#tok; $i++) {printf("%s\n", $tok[$i]);}' > $workingdir/tmpB
   paste $workingdir/tmpA $workingdir/tmpB > $one2one_table
+  
+  LA=`cat $workingdir/tmpA | wc -l`
+  LB=`cat $workingdir/tmpB | wc -l`
+  if [[ $LA -ne $LB ]]; then
+    echo mismatch length normalised/unnormalised texts in txt2tg >> $statusfile
+  else
+    echo match length normalised/unnormalised texts in txt2tg >> $statusfile
+  fi
+
   rm $workingdir/tmpA $workingdir/tmpB
 
-# no newline after $text
-text=`echo -n $text`
+# no newline after or in $text
+text=`echo -n $text | tr '\n' ' '`
   cat $mothertg | sed "s/__FILEDURATION__/$fileduration/" | sed "s/__FROM__/$from/" | sed "s/__TO__/$to/" | sed s/__TRANSCRIPTION__/"$text"/ > $tgfile
 
 done

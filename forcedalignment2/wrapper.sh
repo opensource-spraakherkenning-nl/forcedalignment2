@@ -58,10 +58,10 @@ PLDIR=$RESOURCESDIRECTORY/perl
 
 cd $WEBSERVICEDIRECTORY
 
-#dos2unix $INPUTDIRECTORY/*txt
-#dos2unix $INPUTDIRECTORY/*tg
+dos2unix $INPUTDIRECTORY/*txt
+dos2unix $INPUTDIRECTORY/*tg
 
-#echo dos2unix >> $STATUSFILE
+echo dos2unix >> $STATUSFILE
 
 #./tg2txt.sh $INPUTDIRECTORY $PLDIR
 # X.tg -> X.txt
@@ -70,21 +70,30 @@ cd $WEBSERVICEDIRECTORY
 #echo een twee drie > $INPUTDIRECTORY/file1.txt
 #this was a debug repair
 
-./txt2tg.sh $INPUTDIRECTORY $scriptdir $mothertg
+./txt2tg.sh $INPUTDIRECTORY $PLDIR $mothertg $STATUSFILE
 # writes X.txt to X.tg for all X -- does normalisation. Also creates X.one2one_table. Assumes all wav.X available.
 
 echo txt2tg >> $STATUSFILE
 
-KALDIbin=/vol/tensusers2/eyilmaz/local/bin # kick this line out if in webservice
-OOVlexout=$INPUTDIRECTORY/OOVlex.out
-./g2p.sh $INPUTDIRECTORY $backgroundlexicon $OOVlexout $SCRATCHDIRECTORY $scriptdir $KALDIbin $G2PFSTfile
+## KALDIbin=/vol/tensusers2/eyilmaz/local/bin # kick this line out if in webservice
+OOVlexout=$INPUTDIRECTORY/LEX.out.oov
+./g2p.sh $INPUTDIRECTORY $backgroundlexicon $OOVlexout $SCRATCHDIRECTORY $PLDIR $KALDIbin $G2PFSTfile
 #detect oovs in all X.txt after normalisation
 #apply p-saurus
 
 echo g2p >> $STATUSFILE
 
+### add *.oov to lexicon if file exists
+expandedlexicon=$INPUTDIRECTORY/expandedlexicon.lex
+cat $backgroundlexicon > $expandedlexicon
+for UserOov in $INPUTDIRECTORY/*.oov ; do
+  cat $UserOov >> $expandedlexicon
+  echo user oov $UserOov added to lexicon >> $STATUSFILE
+done
+
+
 foregroundlexicon=$INPUTDIRECTORY/foregroundlexicon.lex
-cat $backgroundlexicon $OOVlexout | sort -u > $foregroundlexicon
+cat $expandedlexicon $OOVlexout | sort -u > $foregroundlexicon
 
 pSPN=0.05
 pSIL=0.05
@@ -108,12 +117,12 @@ echo ali2ali_w >> $STATUSFILE
 #./ali_w2ctm.sh using ali2word_ctm.perl $audiofilename
 #./ali_w2tg.sh using ali2tg_v2.perl
 
-./ali_w2ctm.sh $INPUTDIRECTORY $scriptdir
+./ali_w2ctm.sh $INPUTDIRECTORY $PLDIR
 # X.aliphw2 -> X.ctm # on wordlevel, requires name audiofile
 
 echo ali_w2ctm >> $STATUSFILE
 
-./ali_w2tg.sh $INPUTDIRECTORY $scriptdir
+./ali_w2tg.sh $INPUTDIRECTORY $PLDIR
 #X.aliphw2 -> X_out.tg
 
 echo ali_w2tg >> $STATUSFILE

@@ -24,7 +24,7 @@ for file in $(ls $indir/*ctm); do
   cp $file $outdir
 done
 
-for file in $(ls $indir/OOVlex*); do
+for file in $(ls $indir/*.oov); do
   cp $file $outdir
 done
 

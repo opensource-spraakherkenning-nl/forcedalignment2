@@ -211,7 +211,7 @@ PROFILES = [
             #CharEncodingConverter(id='latin1',label='Convert from Latin-1',charset='iso-8859-1'),
             #PDFtoTextConverter(id='pdfconv',label='Convert from PDF Document'),
             #MSWordConverter(id='docconv',label='Convert from MS Word Document'),
-            extension='.txt',
+            extension='.oov',
             #required=False,
             optional=True,
             #filename='filename.txt',
