@@ -76,25 +76,35 @@ echo dos2unix >> $STATUSFILE
 
 echo txt2tg >> $STATUSFILE
 
+
+### add *.oov to lexicon if file(s) exist
+expandedlexicon=$INPUTDIRECTORY/expandedlexicon.lex
+cat $backgroundlexicon > $expandedlexicon
+for UserOov in $INPUTDIRECTORY/*.oov ; do
+  cat $UserOov | perl -ne 'use open qw(:std :utf8); use utf8; chomp; @tok = split(/\s+/); printf("%s\t%s\n", $tok[0], join(" ", @tok[1..$#tok]));' >> $expandedlexicon
+  tmp=`basename $UserOov`
+  echo user oovfile $tmp added to lexicon >> $STATUSFILE
+done
+
+cat $expandedlexicon | sort -u > $SCRATCHDIRECTORY/tmp.txt
+cp $SCRATCHDIRECTORY/tmp.txt $expandedlexicon
+
+echo expanded lex created, sorted >> $STATUSFILE
+
 ## KALDIbin=/vol/tensusers2/eyilmaz/local/bin # kick this line out if in webservice
 OOVlexout=$INPUTDIRECTORY/LEX.out.oov
-./g2p.sh $INPUTDIRECTORY $backgroundlexicon $OOVlexout $SCRATCHDIRECTORY $PLDIR $KALDIbin $G2PFSTfile
+./g2p.sh $INPUTDIRECTORY $expandedlexicon $OOVlexout $SCRATCHDIRECTORY $PLDIR $KALDIbin $G2PFSTfile
+#./g2p.sh $INPUTDIRECTORY $backgroundlexicon $OOVlexout $SCRATCHDIRECTORY $PLDIR $KALDIbin $G2PFSTfile
 #detect oovs in all X.txt after normalisation
 #apply p-saurus
 
 echo g2p >> $STATUSFILE
 
-### add *.oov to lexicon if file exists
-expandedlexicon=$INPUTDIRECTORY/expandedlexicon.lex
-cat $backgroundlexicon > $expandedlexicon
-for UserOov in $INPUTDIRECTORY/*.oov ; do
-  cat $UserOov >> $expandedlexicon
-  echo user oov $UserOov added to lexicon >> $STATUSFILE
-done
-
-
 foregroundlexicon=$INPUTDIRECTORY/foregroundlexicon.lex
 cat $expandedlexicon $OOVlexout | sort -u > $foregroundlexicon
+
+nOOV=`cat $OOVlexout | wc -l`
+echo $nOOV OOVs added after G2P
 
 pSPN=0.05
 pSIL=0.05
