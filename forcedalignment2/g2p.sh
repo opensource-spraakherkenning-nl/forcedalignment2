@@ -14,7 +14,7 @@ touch $OOVlexout
 
 # using phonetisaurus
 #KALDIbin was /vol/tensusers2/eyilmaz/local/bin
-export PATH=$KALDIbin:$PATH # use of KALDIbin export to be avoided in webservice
+#export PATH=$KALDIbin:$PATH # use of KALDIbin export to be avoided in webservice
 echo phonetisaurus PATH in g2p.sh IMPORTANT
 
 rm -f $scratchdir/OOVwordlist.txt
