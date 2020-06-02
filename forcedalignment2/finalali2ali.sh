@@ -4,7 +4,7 @@ finalali=$1
 wavdir=$2
 
 # get rid of 16kHz files wth extension .wav
-for wavfile in $(ls $wavdir/*16khz.wav); do
+for wavfile in $(ls $wavdir/*16khz.wav 2> /dev/null); do
   mv $wavfile "$wavfile"_16khz
 done
 

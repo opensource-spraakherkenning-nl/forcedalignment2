@@ -80,7 +80,7 @@ echo txt2tg >> $STATUSFILE
 ### add *.oov to lexicon if file(s) exist
 expandedlexicon=$INPUTDIRECTORY/expandedlexicon.lex
 cat $backgroundlexicon > $expandedlexicon
-for UserOov in $INPUTDIRECTORY/*.oov ; do
+for UserOov in (ls $INPUTDIRECTORY/*.oov 2> /dev/null); do
   cat $UserOov | perl -ne 'use open qw(:std :utf8); use utf8; chomp; @tok = split(/\s+/); printf("%s\t%s\n", $tok[0], join(" ", @tok[1..$#tok]));' >> $expandedlexicon
   tmp=`basename $UserOov`
   echo user oovfile $tmp added to lexicon >> $STATUSFILE
@@ -112,6 +112,10 @@ pSIL=0.05
 # X.wav + X.tg -> $INPUTDIRECTORY/log/final_ali.txt
 
 echo wav_tg2ali >> $STATUSFILE
+
+./detect_issues.sh $INPUTDIRECTORY >> $STATUSFILE
+
+echo detect_issues >> $STATUSFILE
 
 ./finalali2ali.sh $INPUTDIRECTORY/log/final_ali.txt $INPUTDIRECTORY
 # final_ali.txt -> X.ali
