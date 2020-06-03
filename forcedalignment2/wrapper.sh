@@ -81,9 +81,11 @@ echo txt2tg >> $STATUSFILE
 expandedlexicon=$INPUTDIRECTORY/expandedlexicon.lex
 cat $backgroundlexicon > $expandedlexicon
 for UserOov in (ls $INPUTDIRECTORY/*.oov 2> /dev/null); do
-  cat $UserOov | perl -ne 'use open qw(:std :utf8); use utf8; chomp; @tok = split(/\s+/); printf("%s\t%s\n", $tok[0], join(" ", @tok[1..$#tok]));' >> $expandedlexicon
+  # cat $UserOov | perl -ne 'use open qw(:std :utf8); use utf8; chomp; @tok = split(/\s+/); printf("%s\t%s\n", $tok[0], join(" ", @tok[1..$#tok]));' >> $expandedlexicon
+  cat $UserOov | perl $PLDIR/merge_dict_v2.perl $expandedlexicon > $SCRATCHDIRECTORY/tmp1.txt
+  cp $SCRATCHDIRECTORY/tmp1.txt $expandedlexicon
   tmp=`basename $UserOov`
-  echo user oovfile $tmp added to lexicon >> $STATUSFILE
+  echo user oovfile $tmp merged by overruling into lexicon >> $STATUSFILE
 done
 
 cat $expandedlexicon | sort -u > $SCRATCHDIRECTORY/tmp.txt
@@ -101,10 +103,10 @@ OOVlexout=$INPUTDIRECTORY/LEX.out.oov
 echo g2p >> $STATUSFILE
 
 foregroundlexicon=$INPUTDIRECTORY/foregroundlexicon.lex
-cat $expandedlexicon $OOVlexout | sort -u > $foregroundlexicon
+ cat $expandedlexicon $OOVlexout | sort -u > $foregroundlexicon
 
 nOOV=`cat $OOVlexout | wc -l`
-echo $nOOV OOVs added after G2P
+echo $nOOV OOVs added after G2P >> $STATUSFILE
 
 pSPN=0.05
 pSIL=0.05
