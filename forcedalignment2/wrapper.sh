@@ -80,7 +80,7 @@ echo txt2tg >> $STATUSFILE
 ### add *.oov to lexicon if file(s) exist
 expandedlexicon=$INPUTDIRECTORY/expandedlexicon.lex
 cat $backgroundlexicon > $expandedlexicon
-for UserOov in (ls $INPUTDIRECTORY/*.oov 2> /dev/null); do
+for UserOov in $(ls $INPUTDIRECTORY/*.oov 2> /dev/null); do
   # cat $UserOov | perl -ne 'use open qw(:std :utf8); use utf8; chomp; @tok = split(/\s+/); printf("%s\t%s\n", $tok[0], join(" ", @tok[1..$#tok]));' >> $expandedlexicon
   cat $UserOov | perl $PLDIR/merge_dict_v2.perl $expandedlexicon > $SCRATCHDIRECTORY/tmp1.txt
   cp $SCRATCHDIRECTORY/tmp1.txt $expandedlexicon
