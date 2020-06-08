@@ -95,10 +95,15 @@ echo expanded lex created, sorted >> $STATUSFILE
 
 ## KALDIbin=/vol/tensusers2/eyilmaz/local/bin # kick this line out if in webservice
 OOVlexout=$INPUTDIRECTORY/LEX.out.oov
-./g2p.sh $INPUTDIRECTORY $expandedlexicon $OOVlexout $SCRATCHDIRECTORY $PLDIR $KALDIbin $G2PFSTfile
+./g2p.sh $INPUTDIRECTORY $expandedlexicon $OOVlexout $SCRATCHDIRECTORY $PLDIR $KALDIbin $G2PFSTfile 2> $SCRATCHDIRECTORY/g2p_problematic_words.txt
 #./g2p.sh $INPUTDIRECTORY $backgroundlexicon $OOVlexout $SCRATCHDIRECTORY $PLDIR $KALDIbin $G2PFSTfile
 #detect oovs in all X.txt after normalisation
 #apply p-saurus
+
+cat $SCRATCHDIRECTORY/g2p_problematic_words.txt | perl -ne 'use open qw(:std :utf8); use utf8; chomp; @tok = split(/\s+/); printf("%s ??\n", $tok[$#tok]);' > $INPUTDIRECTORY/g2p_problematic_words.txt
+
+cat $INPUTDIRECTORY/g2p_problematic_words.txt >> $STATUSFILE
+
 
 echo g2p >> $STATUSFILE
 
