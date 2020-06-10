@@ -100,7 +100,7 @@ OOVlexout=$INPUTDIRECTORY/LEX.out.oov
 #detect oovs in all X.txt after normalisation
 #apply p-saurus
 
-cat $SCRATCHDIRECTORY/g2p_problematic_words.txt | perl -ne 'use open qw(:std :utf8); use utf8; chomp; @tok = split(/\s+/); printf("%s ??\n", $tok[$#tok]);' > $INPUTDIRECTORY/g2p_problematic_words.txt
+cat $SCRATCHDIRECTORY/g2p_problematic_words.txt | perl -ne 'use open qw(:std :utf8); use utf8; chomp; @tok = split(/\s+/); printf("%s ??\n", $tok[$#tok]);' >> $INPUTDIRECTORY/g2p_problematic_words.txt
 
 cat $INPUTDIRECTORY/g2p_problematic_words.txt >> $STATUSFILE
 
@@ -111,7 +111,7 @@ foregroundlexicon=$INPUTDIRECTORY/foregroundlexicon.lex
  cat $expandedlexicon $OOVlexout | sort -u > $foregroundlexicon
 
 nOOV=`cat $OOVlexout | wc -l`
-echo $nOOV OOVs added after G2P >> $STATUSFILE
+echo $nOOV OOVs added after g2p >> $STATUSFILE
 
 pSPN=0.05
 pSIL=0.05

@@ -28,6 +28,7 @@ for file in $(ls $indir/*.oov); do
   cp $file $outdir
 done
 
-
-
+for file in $(ls $indir/*g2p_problematic_words.txt); do
+  cp $file $outdir
+done
 
