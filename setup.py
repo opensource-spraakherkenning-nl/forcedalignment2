@@ -36,7 +36,7 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     ],
-    package_data = {'forcedalignment2':['*.wsgi','*.yml','*.sh', '*.fst', '*.perl', '*.wav', '*.tg', '*.ctm', '*.ali', '*.aliphw2', '*.oov'] },
+    package_data = {'forcedalignment2':['*.wsgi','*.yml','*.sh', '*.fst', '*.perl', '*.wav', '*.tg', '*.ctm', '*.ali', '*.aliphw2', '*.oov', '*.dict'] },
     include_package_data=True,
     install_requires=['CLAM >= 3.0']
 )

@@ -190,7 +190,7 @@ STYLE = 'classic'
 
 PROFILES = [
     Profile(
-        InputTemplate('InputWavFile',WaveAudioFormat,"Speech file in the wave format",
+        InputTemplate('InputWavFile',WaveAudioFormat,"Speech file in .wav format",
             #StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'), #note that encoding is required if you work with PlainTextFormat
             #ChoiceParameter(id='language',name='Language',description='The language the text is in', choices=[('en','English'),('nl','Dutch'),('fr','French')]),
             #StringParameter(id='author',name='Author',description="The author's name", maxlength=100),
@@ -202,7 +202,7 @@ PROFILES = [
             #filename='filename.txt',
             #unique=True #set unique=True if the user may only upload a file for this input template once. Set multi=True if you the user may upload multiple of such files
         ),
-        InputTemplate('LexAddOn', PlainTextFormat,"LexAddOn",
+        InputTemplate('LexAddOn', PlainTextFormat,"Optional user dictionary .dict (will overrule bg lexicon)",
             StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
             #StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'), #note that encoding is required if you work with PlainTextFormat
             #ChoiceParameter(id='language',name='Language',description='The language the text is in', choices=[('en','English'),('nl','Dutch'),('fr','French')]),
@@ -211,13 +211,13 @@ PROFILES = [
             #CharEncodingConverter(id='latin1',label='Convert from Latin-1',charset='iso-8859-1'),
             #PDFtoTextConverter(id='pdfconv',label='Convert from PDF Document'),
             #MSWordConverter(id='docconv',label='Convert from MS Word Document'),
-            extension='.oov',
+            extension='.dict',
             #required=False,
             optional=True,
             #filename='filename.txt',
             #unique=True #set unique=True if the user may only upload a file for this input template once. Set multi=True if you the user may upload multiple of such files
         ),
-        InputTemplate('TranscriptionFile', PlainTextFormat,"TranscriptionFile",
+        InputTemplate('TranscriptionFile', PlainTextFormat,"Transcription .txt (utf8)",
             StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'), #note that encoding is required if you work with PlainTextFormat
             #ChoiceParameter(id='language',name='Language',description='The language the text is in', choices=[('en','English'),('nl','Dutch'),('fr','French')]),
             #StringParameter(id='author',name='Author',description="The author's name", maxlength=100),

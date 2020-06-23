@@ -59,8 +59,8 @@ PLDIR=$RESOURCESDIRECTORY/perl
 cd $WEBSERVICEDIRECTORY
 
 # ???
-dos2unix $INPUTDIRECTORY/*txt
-dos2unix $INPUTDIRECTORY/*tg
+dos2unix $INPUTDIRECTORY/*txt 2> /dev/null
+dos2unix $INPUTDIRECTORY/*tg 2> /dev/null
 
 echo dos2unix >> $STATUSFILE
 
@@ -77,15 +77,15 @@ echo dos2unix >> $STATUSFILE
 echo txt2tg >> $STATUSFILE
 
 
-### add *.oov to lexicon if file(s) exist
+### add user *.dict to lexicon if file(s) exist
 expandedlexicon=$INPUTDIRECTORY/expandedlexicon.lex
 cat $backgroundlexicon > $expandedlexicon
-for UserOov in $(ls $INPUTDIRECTORY/*.oov 2> /dev/null); do
+for UserOov in $(ls $INPUTDIRECTORY/*.dict 2> /dev/null); do
   # cat $UserOov | perl -ne 'use open qw(:std :utf8); use utf8; chomp; @tok = split(/\s+/); printf("%s\t%s\n", $tok[0], join(" ", @tok[1..$#tok]));' >> $expandedlexicon
   cat $UserOov | perl $PLDIR/merge_dict_v2.perl $expandedlexicon > $SCRATCHDIRECTORY/tmp1.txt
   cp $SCRATCHDIRECTORY/tmp1.txt $expandedlexicon
   tmp=`basename $UserOov`
-  echo user oovfile $tmp merged by overruling into lexicon >> $STATUSFILE
+  echo user dictionary $tmp merged by overruling into bg lexicon >> $STATUSFILE
 done
 
 cat $expandedlexicon | sort -u > $SCRATCHDIRECTORY/tmp.txt
@@ -104,22 +104,23 @@ cat $SCRATCHDIRECTORY/g2p_problematic_words.txt | perl -ne 'use open qw(:std :ut
 
 cat $INPUTDIRECTORY/g2p_problematic_words.txt >> $STATUSFILE
 
-
 echo g2p >> $STATUSFILE
 
 foregroundlexicon=$INPUTDIRECTORY/foregroundlexicon.lex
 cat $expandedlexicon $OOVlexout | sort -u > $foregroundlexicon
 
 nOOV=`cat $OOVlexout | wc -l`
-echo $nOOV OOVs added after g2p >> $STATUSFILE
+echo $nOOV OOVs resolved by g2p, added >> $STATUSFILE
 
 ## here add the g2p problematic words with phone representation [SPN]
+
+nproblems=`cat $INPUTDIRECTORY/g2p_problematic_words.txt | wc -l`
 cat $INPUTDIRECTORY/g2p_problematic_words.txt | perl -ne 'chomp; @tok = split(/\s+/); $word = $tok[0]; $word = substr($word, 1, length($word)-2); printf("%s\t%s\n", $word, "[SPN]");' > $SCRATCHDIRECTORY/post_p2p_addons.lex
 
 cat $foregroundlexicon $SCRATCHDIRECTORY/post_p2p_addons.lex | sort -u > $SCRATCHDIRECTORY/tmp_lex.txt
 cp $SCRATCHDIRECTORY/tmp_lex.txt $foregroundlexicon
 
-echo added post g2p problematic words >> $STATUSFILE
+echo added $nproblems remaining problematic words >> $STATUSFILE
 
 ### FA
 
