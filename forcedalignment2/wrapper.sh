@@ -72,7 +72,7 @@ echo dos2unix >> $STATUSFILE
 #this was a debug repair
 
 ./txt2tg.sh $INPUTDIRECTORY $PLDIR $mothertg $STATUSFILE
-# writes X.txt to X.tg for all X -- does normalisation. Also creates X.one2one_table. Assumes all wav.X available.
+# writes X.txt to X.tg for all X -- does normalisation. Also creates X.one2one_table. Assumes all X.wav available.
 
 echo txt2tg >> $STATUSFILE
 
@@ -108,10 +108,20 @@ cat $INPUTDIRECTORY/g2p_problematic_words.txt >> $STATUSFILE
 echo g2p >> $STATUSFILE
 
 foregroundlexicon=$INPUTDIRECTORY/foregroundlexicon.lex
- cat $expandedlexicon $OOVlexout | sort -u > $foregroundlexicon
+cat $expandedlexicon $OOVlexout | sort -u > $foregroundlexicon
 
 nOOV=`cat $OOVlexout | wc -l`
 echo $nOOV OOVs added after g2p >> $STATUSFILE
+
+## here add the g2p problematic words with phone representation [SPN]
+cat $INPUTDIRECTORY/g2p_problematic_words.txt | perl -ne 'chomp; @tok = split(/\s+/); $word = $tok[0]; $word = substr($word, 1, length($word)-2); printf("%s\t%s\n", $word, "[SPN]");' > $SCRATCHDIRECTORY/post_p2p_addons.lex
+
+cat $foregroundlexicon $SCRATCHDIRECTORY/post_p2p_addons.lex | sort -u > $SCRATCHDIRECTORY/tmp_lex.txt
+cp $SCRATCHDIRECTORY/tmp_lex.txt $foregroundlexicon
+
+echo added post g2p problematic words >> $STATUSFILE
+
+### FA
 
 pSPN=0.05
 pSIL=0.05
