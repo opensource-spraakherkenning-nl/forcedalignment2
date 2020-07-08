@@ -76,6 +76,9 @@ echo dos2unix >> $STATUSFILE
 
 echo txt2tg >> $STATUSFILE
 
+./check_tg.sh $INPUTDIRECTORY
+
+echo check_tg >> $STATUSFILE
 
 ### add user *.dict to lexicon if file(s) exist
 expandedlexicon=$INPUTDIRECTORY/expandedlexicon.lex
@@ -168,6 +171,11 @@ echo ali_w2tg >> $STATUSFILE
 ./result2outputdir.sh $INPUTDIRECTORY $OUTPUTDIRECTORY
 
 echo result2outputdir >> $STATUSFILE
+
+./remove_wavs.sh $INPUTDIRECTORY
+
+echo remove_wavs >> $STATUSFILE
+
 
 cd -
 

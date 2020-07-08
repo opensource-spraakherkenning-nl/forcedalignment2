@@ -10,6 +10,6 @@ done
 for wavfile in $(ls $wavdir/*wav); do
   tmp=`basename $wavfile`
   tmp2=`echo $tmp | sed 's/\.wav/-16khz/'`
-  cat $wavdir/log/$tmp2/log/align.1.log | perl -e '$FN=$ARGV[0]; while (<STDIN>) {chomp; if (m/is\s+(.+)\s+over\s+([0-9]+)\s+frames/) {$score = $1; $nfr = $2; printf("%s: overall log likelihood/frame: %s (%s frames)\n", $FN, $score, $nfr);  if ($score eq "nan") {printf("%s: MISMATCH AUDIO and TEXT\n", $FN);}}}' $tmp 
+  cat $wavdir/log/$tmp2/log/align.1.log | perl -e '$FN=$ARGV[0]; while (<STDIN>) {chomp; if (m/is\s+(.+)\s+over\s+([0-9]+)\s+frames/) {$score = $1; $nfr = $2; printf("%s: overall log likelihood/frame: %s (%s frames)\n", $FN, $score, $nfr);  if (lc($score) eq "nan") {printf("%s: MISMATCH AUDIO and TEXT\n", $FN);}}}' $tmp 
 done 
 

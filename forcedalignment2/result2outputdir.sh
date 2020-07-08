@@ -24,6 +24,14 @@ for file in $(ls $indir/*ctm); do
   cp $file $outdir
 done
 
+for file in $(ls $indir/*tg2); do
+  cp $file $outdir
+done
+
+for file in $(ls $indir/*ctm2); do
+  cp $file $outdir
+done
+
 for file in $(ls $indir/*.oov); do
   cp $file $outdir
 done
