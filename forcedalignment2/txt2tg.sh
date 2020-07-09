@@ -25,8 +25,8 @@ for txtfile in $(ls $workingdir/*txt); do
   # here filter out time stamps appearing in the input
   textA=`cat $txtfile | perl -ne 'use open qw(:std :utf8); use utf8; chomp; if (!(m/^\s*\[.*\]\s*$/)) {printf("%s\n", $_);}'`
 
-  # here replace [] by TSTSTS_ as prefix to next word
-  textC=`cat $txtfile | perl -e 'use open qw(:std :utf8); use utf8; while (<STDIN>) {chomp; if (m/^\s*\[.*\]\s*$/) {printf("%s_", "TSTSTS");} else {printf("%s ", $_);}} printf("\n");' | perl -ne 'use open qw(:std :utf8); s/TSTSTS_\s*/TSTSTS_/g; printf("%s\n", $_);'` 
+  # same but here replace [] by TSTSTS_
+  textC=`cat $txtfile | perl -e 'use open qw(:std :utf8); use utf8; while (<STDIN>) {chomp; if (m/^\s*\[.*\]\s*$/) {printf("%s ", "TSTSTS");} else {printf("%s ", $_);}} printf("\n");'` 
   # and create a table of []  
   cat $txtfile | perl -e 'use open qw(:std :utf8); use utf8; while (<STDIN>) {chomp; if (m/^\s*\[.*\]\s*$/) {printf("%s\n", $_);}}' > $workingdir/tmpE 
 
@@ -34,13 +34,13 @@ for txtfile in $(ls $workingdir/*txt); do
   textB=`echo "$textA" | perl $PERLdir/kickout_dangling_punctuation.perl`
   text=`echo "$textB" | perl $PERLdir/apostrophe2apostrophe.perl | perl $PERLdir/strip_off_punct_v4b.perl | perl $PERLdir/strip_off_CGN_marks.perl | perl -ne 'chomp; printf("%s\n", lc($_));'`
 
-  textD=`echo "$textC" | perl $PERLdir/kickout_dangling_punctuation.perl`
-
+  textD=`echo "$textC" | perl $PERLdir/kickout_dangling_punctuation.perl | perl -ne 'chomp; s/TSTSTS\s+/TSTSTS /g; printf("%s\n", $_);'`
+  echo $textD
 
   echo $textB | perl -ne 'chomp; @tok=split(/\s+/); for ($i=0; $i <= $#tok; $i++) {printf("%s\n", $tok[$i]);}' > $workingdir/tmpA
   echo $text | perl -ne 'chomp; @tok=split(/\s+/); for ($i=0; $i <= $#tok; $i++) {printf("%s\n", $tok[$i]);}' > $workingdir/tmpB
   echo $textD | perl -ne 'chomp; @tok=split(/\s+/); for ($i=0; $i <= $#tok; $i++) {printf("%s\n", $tok[$i]);}' > $workingdir/tmpC
-  echo $textD | perl -e 'open(TAGS, "<" . $ARGV[0]); while (<TAGS>) {chomp; $TAG[$.] = $_;} $tagid = 0; while (<STDIN>) {chomp; @tok=split(/\s+/); for ($i=0; $i <= $#tok; $i++) {if ($tok[$i] =~ m/^TSTSTS_/) {$tagid++; $tok[$i] =~ s/^TSTSTS_//g; printf("%s_%s\n", $TAG[$tagid], $tok[$i]);} else {printf("%s\n", $tok[$i])}; }}' $workingdir/tmpE > $workingdir/tmpD
+  echo $textD | perl -e 'open(TAGS, "<" . $ARGV[0]); while (<TAGS>) {chomp; $TAG[$.] = $_;} $tagid = 0; while (<STDIN>) {chomp; @tok=split(/\s+/); for ($i=0; $i <= $#tok; $i++) {if ($tok[$i] =~ m/^TSTSTS$/) {$tagid++; printf("%s_", $TAG[$tagid]);} else {printf("%s\n", $tok[$i])}; }}' $workingdir/tmpE > $workingdir/tmpD
 
 
   paste $workingdir/tmpA $workingdir/tmpB $workingdir/tmpD > $one2one_table

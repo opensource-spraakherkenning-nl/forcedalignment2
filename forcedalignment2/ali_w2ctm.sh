@@ -14,7 +14,7 @@ for alifile in $(ls $workingdir/*aliphw2); do
   audiofn=`echo $basename | sed 's/\.aliphw2//'`
   cat $alifile | perl $PERLdir/ali2word_ctm.perl $audiofn $channel > $ctm2file
 
-  cat $ctm2file | perl -ne 'chomp; @tok = split(/\t/); $tok[4] =~ s/^\[.*\]_//g; printf("%s\n", join("\t", @tok));' > $ctmfile
+  cat $ctm2file | perl -ne 'chomp; @tok = split(/\t/); $tok[4] =~ s/\[.*\]_//g; printf("%s\n", join("\t", @tok));' > $ctmfile
 
 done
 
