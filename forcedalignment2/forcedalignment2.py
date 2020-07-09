@@ -200,7 +200,7 @@ PROFILES = [
             #MSWordConverter(id='docconv',label='Convert from MS Word Document'),
             extension='.wav',
             #filename='filename.txt',
-            multi=True #set unique=True if the user may only upload a file for this input template once. Set multi=True if you the user may upload multiple of such files
+            unique=True #set unique=True if the user may only upload a file for this input template once. Set multi=True if you the user may upload multiple of such files
         ),
         InputTemplate('LexAddOn', PlainTextFormat,"Optional user dictionary .dict (will overrule bg lexicon)",
             StaticParameter(id='encoding',name='Encoding',description='The character encoding of the file', value='utf-8'),
@@ -230,7 +230,7 @@ PROFILES = [
 
             extension='.txt',
             #filename='filename.txt',
-            multi=True #set unique=True if the user may only upload a file for this input template once. Set multi=True if you the user may upload multiple of such files
+            unique=True #set unique=True if the user may only upload a file for this input template once. Set multi=True if you the user may upload multiple of such files
         ),
         #------------------------------------------------------------------------------------------------------------------------
         OutputTemplate('FAout',PlainTextFormat,'FAout',
