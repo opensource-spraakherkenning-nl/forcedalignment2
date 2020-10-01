@@ -9,8 +9,8 @@ for tgfile in $(ls $workingdir/*tg); do
   wavfile=`echo $tgfile | sed 's/\.tg/.wav/g'`
 
   test1=`cat $tgfile | tail -1 | perl -ne 'chomp; m/\"(.*)\"\s*$/; $txt = $1; $txt =~ s/^\s+//g; $txt =~ s/\s+$//g; printf("%s\n", length($txt));'`
-  
-  
+
+
   if [  0 -lt $test1 ]; then
     echo OK > /dev/null
   else

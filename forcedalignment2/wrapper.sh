@@ -37,12 +37,16 @@ if [ -z "$SCRATCHDIRECTORY" ]; then
     SCRATCHDIRECTORY=/tmp
 fi
 
+
 die() {
     echo "-------------- fatal error ----------------" >&2
     echo "$1" >&2
     echo "-------------------------------------------" >&2
     exit 2
 }
+
+mkdir -p $SCRATCHDIRECTORY || die "unable to make scratch directory $SCRATCHDIRECTORY"
+
 ##RESOURCESDIRECTORY=/vol/tensusers/ltenbosch/clst-asr_forced-aligner/kaldi/egs/clst-asr_forced-aligner/s5
 #RESOURCESDIRECTORY=/vol/tensusers/ltenbosch/webservices/KALDI/resources2
 
