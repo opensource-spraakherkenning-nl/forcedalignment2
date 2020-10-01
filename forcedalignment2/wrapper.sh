@@ -22,17 +22,27 @@ WEBSERVICEDIRECTORY=$5
 STATUSFILE=$6
 
 
-echo input dir $INPUTDIRECTORY
-echo scratch dir $SCRATCHDIRECTORY
-echo resources dir $RESOURCESDIRECTORY
-echo output dir $OUTPUTDIRECTORY
-echo webservice dir $WEBSERVICEDIRECTORY
-echo statusfile $STATUSFILE
+echo input dir $INPUTDIRECTORY >&2
+echo scratch dir $SCRATCHDIRECTORY >&2
+echo resources dir $RESOURCESDIRECTORY >&2
+echo output dir $OUTPUTDIRECTORY >&2
+echo webservice dir $WEBSERVICEDIRECTORY >&2
+echo statusfile $STATUSFILE >&2
 
 # put everything in /vol/tensusers/ltenbosch/webservices/KALDI/resources2
 
 #INPUTDIRECTORY=/vol/tensusers/ltenbosch/FA_webservice_in
-#SCRATCHDIRECTORY=/tmp
+if [ -z "$SCRATCHDIRECTORY" ]; then
+    echo "Falling back to /tmp as scratch directory! This is sub-optimal and can lead to concurrency problems!" >&2
+    SCRATCHDIRECTORY=/tmp
+fi
+
+die() {
+    echo "-------------- fatal error ----------------" >&2
+    echo "$1" >&2
+    echo "-------------------------------------------" >&2
+    exit 2
+}
 ##RESOURCESDIRECTORY=/vol/tensusers/ltenbosch/clst-asr_forced-aligner/kaldi/egs/clst-asr_forced-aligner/s5
 #RESOURCESDIRECTORY=/vol/tensusers/ltenbosch/webservices/KALDI/resources2
 
@@ -56,11 +66,11 @@ KALDIbin2=__not_used__ # $RESOURCESDIRECTORY/KALDIbin2 # only for ali-to-phones
 
 PLDIR=$RESOURCESDIRECTORY/perl
 
-cd $WEBSERVICEDIRECTORY
+cd $WEBSERVICEDIRECTORY || die "Webservicedirectory $WEBSERVICEDIRECTORY does not exist"
 
 # ???
-dos2unix $INPUTDIRECTORY/*txt 2> /dev/null
-dos2unix $INPUTDIRECTORY/*tg 2> /dev/null
+dos2unix $INPUTDIRECTORY/*txt 2> /dev/null || die "dos2unix failed"
+dos2unix $INPUTDIRECTORY/*tg 2> /dev/null || die "dos2unix failed"
 
 echo dos2unix >> $STATUSFILE
 
@@ -71,34 +81,35 @@ echo dos2unix >> $STATUSFILE
 #echo een twee drie > $INPUTDIRECTORY/file1.txt
 #this was a debug repair
 
-./txt2tg.sh $INPUTDIRECTORY $PLDIR $mothertg $STATUSFILE
+./txt2tg.sh $INPUTDIRECTORY $PLDIR $mothertg $STATUSFILE || die "txt2tg failed"
 # writes X.txt to X.tg for all X -- does normalisation. Also creates X.one2one_table. Assumes all X.wav available.
 
 echo txt2tg >> $STATUSFILE
 
-./check_tg.sh $INPUTDIRECTORY
+./check_tg.sh $INPUTDIRECTORY || die "check_tg failed"
 
 echo check_tg >> $STATUSFILE
 
 ### add user *.dict to lexicon if file(s) exist
 expandedlexicon=$INPUTDIRECTORY/expandedlexicon.lex
-cat $backgroundlexicon > $expandedlexicon
+cat $backgroundlexicon > $expandedlexicon || die "unable to write expanded lexicon"
 for UserOov in $(ls $INPUTDIRECTORY/*.dict 2> /dev/null); do
   # cat $UserOov | perl -ne 'use open qw(:std :utf8); use utf8; chomp; @tok = split(/\s+/); printf("%s\t%s\n", $tok[0], join(" ", @tok[1..$#tok]));' >> $expandedlexicon
-  cat $UserOov | perl $PLDIR/merge_dict_v2.perl $expandedlexicon > $SCRATCHDIRECTORY/tmp1.txt
-  cp $SCRATCHDIRECTORY/tmp1.txt $expandedlexicon
+  cat $UserOov | perl $PLDIR/merge_dict_v2.perl $expandedlexicon > $SCRATCHDIRECTORY/tmp1.txt || die "merge_dict failed"
+  cp $SCRATCHDIRECTORY/tmp1.txt $expandedlexicon || die "unable to copy tmp1.txt to exapnded lexicon"
   tmp=`basename $UserOov`
   echo user dictionary $tmp merged by overruling into bg lexicon >> $STATUSFILE
 done
 
-cat $expandedlexicon | sort -u > $SCRATCHDIRECTORY/tmp.txt
-cp $SCRATCHDIRECTORY/tmp.txt $expandedlexicon
+cat $expandedlexicon | sort -u > $SCRATCHDIRECTORY/tmp.txt || die "unable to sort expanded lexicon"
+cp $SCRATCHDIRECTORY/tmp.txt $expandedlexicon || die "unable to copy tmp.txt to exapnded lexicon"
 
 echo expanded lex created, sorted >> $STATUSFILE
 
 ## KALDIbin=/vol/tensusers2/eyilmaz/local/bin # kick this line out if in webservice
 OOVlexout=$INPUTDIRECTORY/LEX.out.oov
-./g2p.sh $INPUTDIRECTORY $expandedlexicon $OOVlexout $SCRATCHDIRECTORY $PLDIR $KALDIbin $G2PFSTfile 2> $SCRATCHDIRECTORY/g2p_problematic_words.txt
+./g2p.sh $INPUTDIRECTORY $expandedlexicon $OOVlexout $SCRATCHDIRECTORY $PLDIR $KALDIbin $G2PFSTfile 2> $SCRATCHDIRECTORY/g2p_problematic_words.txt || die "g2p failed"
+
 #./g2p.sh $INPUTDIRECTORY $backgroundlexicon $OOVlexout $SCRATCHDIRECTORY $PLDIR $KALDIbin $G2PFSTfile
 #detect oovs in all X.txt after normalisation
 #apply p-saurus
@@ -110,7 +121,7 @@ cat $INPUTDIRECTORY/g2p_problematic_words.txt >> $STATUSFILE
 echo g2p >> $STATUSFILE
 
 foregroundlexicon=$INPUTDIRECTORY/foregroundlexicon.lex
-cat $expandedlexicon $OOVlexout | sort -u > $foregroundlexicon
+cat $expandedlexicon $OOVlexout | sort -u > $foregroundlexicon || die "failure creating foregound lexicon"
 
 nOOV=`cat $OOVlexout | wc -l`
 echo $nOOV OOVs resolved by g2p, added >> $STATUSFILE
@@ -121,7 +132,7 @@ nproblems=`cat $INPUTDIRECTORY/g2p_problematic_words.txt | wc -l`
 cat $INPUTDIRECTORY/g2p_problematic_words.txt | perl -ne 'chomp; @tok = split(/\s+/); $word = $tok[0]; $word = substr($word, 1, length($word)-2); printf("%s\t%s\n", $word, "[SPN]");' > $SCRATCHDIRECTORY/post_p2p_addons.lex
 
 cat $foregroundlexicon $SCRATCHDIRECTORY/post_p2p_addons.lex | sort -u > $SCRATCHDIRECTORY/tmp_lex.txt
-cp $SCRATCHDIRECTORY/tmp_lex.txt $foregroundlexicon
+cp $SCRATCHDIRECTORY/tmp_lex.txt $foregroundlexicon || die "failure creating foreground lexicon"
 
 echo added $nproblems remaining problematic words >> $STATUSFILE
 
@@ -129,21 +140,21 @@ echo added $nproblems remaining problematic words >> $STATUSFILE
 
 pSPN=0.05
 pSIL=0.05
-./wav_tg2ali.sh $configfile $INPUTDIRECTORY $pSPN $pSIL $foregroundlexicon $RESOURCESDIRECTORY $KALDIbin2 $STATUSFILE
+./wav_tg2ali.sh $configfile $INPUTDIRECTORY $pSPN $pSIL $foregroundlexicon $RESOURCESDIRECTORY $KALDIbin2 $STATUSFILE || die "wav_tg2ali failed"
 # X.wav + X.tg -> $INPUTDIRECTORY/log/final_ali.txt
 
 echo wav_tg2ali >> $STATUSFILE
 
-./detect_issues.sh $INPUTDIRECTORY >> $STATUSFILE
+./detect_issues.sh $INPUTDIRECTORY >> $STATUSFILE || die "detect issues failed"
 
 echo detect_issues >> $STATUSFILE
 
-./finalali2ali.sh $INPUTDIRECTORY/log/final_ali.txt $INPUTDIRECTORY
+./finalali2ali.sh $INPUTDIRECTORY/log/final_ali.txt $INPUTDIRECTORY || die "finalali2ali failed"
 # final_ali.txt -> X.ali
 
 echo finalali2ali >> $STATUSFILE
 
-./ali2ali_w.sh $INPUTDIRECTORY
+./ali2ali_w.sh $INPUTDIRECTORY || die "ali2ali_w failed"
 # X.ali + X.one2one_table -> X.aliphw2
 
 echo ali2ali_w >> $STATUSFILE
@@ -153,12 +164,12 @@ echo ali2ali_w >> $STATUSFILE
 #./ali_w2ctm.sh using ali2word_ctm.perl $audiofilename
 #./ali_w2tg.sh using ali2tg_v2.perl
 
-./ali_w2ctm.sh $INPUTDIRECTORY $PLDIR
+./ali_w2ctm.sh $INPUTDIRECTORY $PLDIR || die "ali_w2ctm failed"
 # X.aliphw2 -> X.ctm # on wordlevel, requires name audiofile
 
 echo ali_w2ctm >> $STATUSFILE
 
-./ali_w2tg.sh $INPUTDIRECTORY $PLDIR
+./ali_w2tg.sh $INPUTDIRECTORY $PLDIR || die "ali_w2tg failed"
 #X.aliphw2 -> X_out.tg
 
 echo ali_w2tg >> $STATUSFILE
@@ -168,11 +179,12 @@ echo ali_w2tg >> $STATUSFILE
 
 #echo ali_w2tar >> $STATUSFILE
 
-./result2outputdir.sh $INPUTDIRECTORY $OUTPUTDIRECTORY
+./result2outputdir.sh $INPUTDIRECTORY $OUTPUTDIRECTORY || die "result2outputdir failed"
+
 
 echo result2outputdir >> $STATUSFILE
 
-./remove_wavs.sh $INPUTDIRECTORY
+./remove_wavs.sh $INPUTDIRECTORY || die "remove wavs failed"
 
 echo remove_wavs >> $STATUSFILE
 
