@@ -73,7 +73,7 @@ PLDIR=$RESOURCESDIRECTORY/perl
 cd $WEBSERVICEDIRECTORY || die "Webservicedirectory $WEBSERVICEDIRECTORY does not exist"
 
 # ???
-if [ ! which dos2unix ]; then
+if ! which dos2unix; then
     die "dos2unix not found"
 fi
 dos2unix $INPUTDIRECTORY/*txt 2> /dev/null
