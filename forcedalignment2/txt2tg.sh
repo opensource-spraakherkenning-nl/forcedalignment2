@@ -49,11 +49,18 @@ for txtfile in $(ls $workingdir/*txt); do
   LB=`cat $workingdir/tmpB | wc -l`
   LC=`cat $workingdir/tmpC | wc -l`
 
-  if [[ $LA == $LB ]] && [[ $LA == $LC ]]; then
-    echo match length normalised/unnormalised texts in txt2tg >> $statusfile
+  if [[ $LA == $LB ]]; then
+    echo match length normalised/unnormalised texts AB in txt2tg >> $statusfile
   else
-    echo mismatch length normalised/unnormalised texts in txt2tg >> $statusfile
+    echo mismatch length normalised/unnormalised texts AB in txt2tg >> $statusfile
   fi
+
+  if [[ $LA == $LC ]]; then
+    echo match length normalised/unnormalised texts AC in txt2tg >> $statusfile
+  else
+    echo mismatch length normalised/unnormalised texts AC in txt2tg >> $statusfile
+  fi
+
 
   rm $workingdir/tmpA $workingdir/tmp[BCDE]
 
