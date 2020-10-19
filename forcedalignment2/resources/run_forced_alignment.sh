@@ -68,6 +68,12 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../../../tools/openfst/lib/
 python_cmd=python3   # changed louis Oct 2020
 
 # echo XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  AA
+die() {
+    echo "-------------- fatal error ----------------" >&2
+    echo "$1" >&2
+    echo "-------------------------------------------" >&2
+    exit 2
+}
 
 # Load configurations
 . "$config_file"
@@ -108,7 +114,7 @@ echo MAIN FOLDER WAV $main_folder_wav >&2
 channel=1
 for wavfile in $(ls $main_folder_wav/*wav); do
   wav16kHz=`echo "$wavfile" | sed 's/\.wav/-16khz.wav/'`
-  sox "$wavfile" -r 16000 "$wav16kHz" remix $channel
+  sox "$wavfile" -r 16000 "$wav16kHz" remix $channel || die "unable to convert $wavfile"
 done
 
 echo $wav16khz 1>&2
@@ -130,7 +136,7 @@ echo $wav16khz 1>&2
 	    then
             iconv -f ${from_encoding} -t utf-8 "$file" -o "${file}-converted"
             mv "${file}-converted" "$file"
-            sed -i 's/^\xEF\xBB\xBF//' "$file"
+            sed -i 's/^\xEF\xBB\xBF//' "$file" || die "unable to converted $file to utf-8"
             echo "Converted $file from ${from_encoding} encoding to utf-8..." >&2
 	    fi
 	done
@@ -184,7 +190,7 @@ if [ $stage -le 2 ]; then
 
 			#Preparing wav.scp, segments, utt2spk, spk2utt text file and dictionary for $filename "..."
 			echo ${python_cmd} data/local/data_prep.py --align_tier_name $align_tier_name --speaker_adapt SA --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --dict_file $backgroundlexicon >&2
-			${python_cmd} data/local/data_prep.py --align_tier_name $align_tier_name --speaker_adapt SA --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --dict_file $backgroundlexicon
+			${python_cmd} data/local/data_prep.py --align_tier_name $align_tier_name --speaker_adapt SA --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --dict_file $backgroundlexicon || die "data_prep failed"
 
 
 # what are the OOVs?
@@ -210,7 +216,7 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP >&2
 			# Preparing language resources directory" + filename + "..."
                         echo utils/prepare_lang.sh --sil_prob 0.05 --position-dependent-phones true --num-sil-states 3 ${datadir}/dict UNK ${datadir}/tmp ${datadir}/lang >&2
 
-			utils/prepare_lang.sh --sil_prob 0.05 --position-dependent-phones true --num-sil-states 3 ${datadir}/dict "<UNK>" ${datadir}/tmp ${datadir}/lang
+			utils/prepare_lang.sh --sil_prob 0.05 --position-dependent-phones true --num-sil-states 3 ${datadir}/dict "<UNK>" ${datadir}/tmp ${datadir}/lang || die "prepare_lang failed"
 
 
 #cat ${datadir}/lang/words.txt
@@ -306,7 +312,7 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP >&2
 			#$src/bin/ali-to-phones --ctm-output $acmod/final.mdl ark:"gunzip -c $aligndir/$filename_only/ali.1.gz|" -> $aligndir/$filename_only/ali.1.ctm;
 			#$KALDIbin2/
 			which ali-to-phones
-			ali-to-phones --ctm-output $acmod/final.mdl ark:"gunzip -c $aligndir/$filename_only/ali.1.gz|" -> $aligndir/$filename_only/ali.1.ctm;
+			ali-to-phones --ctm-output $acmod/final.mdl ark:"gunzip -c $aligndir/$filename_only/ali.1.gz|" -> $aligndir/$filename_only/ali.1.ctm || die "ali-to-phones failed"
 
 
 			# Remove copied acoustic model file 'final.mdl'
@@ -351,7 +357,7 @@ if [ $stage -le 4 ]; then
 	# Convert the phone numbers (integers) in the text file from stage 3 to the textual phones
 	#filename_only=$(basename $filename)
 	#${target_folder}/id2phone.R data/local/dict_osnl/phones.txt ${aligndir}/segments ${aligndir}/merged_alignment.txt ${aligndir}/final_ali.txt
-	${python_cmd} ${target_folder}/id2phone.py --phonefile data/local/dict_osnl/phones.txt --segmentfile ${aligndir}/segments --alignfile ${aligndir}/merged_alignment.txt --outputfile ${aligndir}/final_ali.txt
+	${python_cmd} ${target_folder}/id2phone.py --phonefile data/local/dict_osnl/phones.txt --segmentfile ${aligndir}/segments --alignfile ${aligndir}/merged_alignment.txt --outputfile ${aligndir}/final_ali.txt || die "id2phone failed"
 
 echo ${aligndir}/final_ali.txt >&2
 cat ${aligndir}/final_ali.txt
@@ -367,9 +373,9 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 		LC_ALL=C sort -n -k 10 -o ${file} ${file}
 	done;
 	# Adds the position of the phone in the word (beginning, centre, end or whole word)
-	${python_cmd} ${target_folder}/phons2pron.py ${splits} ${aligndir}/pron_alignment.txt
+	${python_cmd} ${target_folder}/phons2pron.py ${splits} ${aligndir}/pron_alignment.txt || die "phons2pron failed"
 	# Converts the above phone alignments to word alignments
-	${python_cmd} ${target_folder}/pron2words.py ${aligndir} ${aligndir}/pron_alignment.txt ${aligndir}/word_alignments.txt
+	${python_cmd} ${target_folder}/pron2words.py ${aligndir} ${aligndir}/pron_alignment.txt ${aligndir}/word_alignments.txt || die "pron2words failed"
 	# Possibly, this is code to remove all the phone position markers, which is required for the next stage
 	for file in ${splits}*; do
                 LC_ALL=C sort -n -k 10 -o ${aligndir}/temp.txt ${file}
@@ -392,4 +398,4 @@ fi
 
 
 
-echo "Alignment process completed!"
+echo "Alignment process completed!">&2
