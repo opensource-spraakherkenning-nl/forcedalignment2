@@ -11,26 +11,34 @@ main_folder_wav=""
 # Create a tier in the resulting file containing the phone alignment. Default: 1
 create_phone_alignment_tier=1
 
-if [ $# -eq 3 ]; then
-    if [ $1 == "--config" ] && [ ! $2 == "" ]; then
-	config_file=$2
-    else
-	echo "Error: argument/option '$1' not recognized!"
-	echo $usage
-	exit 1
-    fi
-    main_folder_wav=$3
-elif [ $# -eq 1 ]; then
-    main_folder_wav=$1
-elif [ $# -gt 3 ]; then
-    echo "Error: multiple arguments were specified, but only the option '--config' option is allowed!"
-    echo $usage
-    exit 1
-elif [ $# -eq 0 ]; then
-    echo "Error: one argument is required, see usage below."
-    echo $usage
-    exit 1
-fi
+
+#if [ $# -eq 3 ]; then
+#    if [ $1 == "--config" ] && [ ! $2 == "" ]; then
+#	config_file=$2
+#    else
+#	echo "Error: argument/option '$1' not recognized!"
+#	echo $usage
+#	exit 1
+#    fi
+#    main_folder_wav=$3
+#elif [ $# -eq 1 ]; then
+#    main_folder_wav=$1
+#elif [ $# -gt 3 ]; then
+#    echo "Error: multiple arguments were specified, but only the option '--config' option is allowed!"
+#    echo $usage
+#    exit 1
+#elif [ $# -eq 0 ]; then
+#    echo "Error: one argument is required, see usage below."
+#    echo $usage
+#    exit 1
+#fi
+
+ignore=$1 # --config
+config_file=$2
+main_folder_wav=$3
+pSPN=$4
+pSIL=$5
+
 
 . ./cmd.sh 
 [ -f path.sh ] && . ./path.sh
@@ -46,7 +54,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../../../tools/openfst/lib/
 # Praat location, default: praat
 praat_cmd="praat --run"
 # Python compiler location (only tested with Python2.7.x), default: python
-python_cmd=python
+python_cmd=python2.7 # changed Louis May 4, 2020
 
 # Load configurations
 . "$config_file"
@@ -154,16 +162,21 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 #echo LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
 
 			# Create simple linear FST LM for better alignment
-			${python_cmd} data/local/lang_prep_fst-lm.py --align_tier_name $align_tier_name --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --use_word_int_ids --dict_file ~/clst-asr-fa/lexicon.txt --pSPN 0.005 --pSIL 0.005 || continue
+			${python_cmd} data/local/lang_prep_fst-lm.py --align_tier_name $align_tier_name --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --use_word_int_ids --dict_file ~/clst-asr-fa/lexicon.txt --pSPN $pSPN --pSIL $pSIL || continue
 
 			# this creates a textfile G.fst.txt in $datadir/lang
 			# of which the first line does not belong to the actual FST
 
 			echo SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+                        echo $datadir/lang
 			ls $datadir/lang/G.fst.txt
 			cat $datadir/lang/G.fst.txt
 			ls $datadir/lang/L.fst
-
+                        cat $datadir/lang/L.fst
+                        ls $datadir/lang/L00.txt
+                        cat $datadir/lang/L00.txt
+                        ls $datadir/lang/L_disambig.fst
+                        echo SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
 
 			# replace previous command by a cascade of smaller steps
 			# 0: start from .wav filename ($filename)
@@ -217,13 +230,14 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
                         echo UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
                         # in case of forced overwriting G
                         # echo forced overwriting G
-                        #cp $datadir/lang/G.fst.txt $datadir/lang/G.fst.txt_BU
-                        #echo copy made
-                        #cp ~/G.fst.txt $datadir/lang/G.fst.txt 
+                        cp $datadir/lang/G.fst.txt $datadir/lang/G.fst.txt_BU
+			# cp $datadir/lang/G.fst.txt ~/G.fst.txt_copy
+                        #echo copy G.fst made
+                        #cp ~/G.fst.txt_copy $datadir/lang/G.fst.txt 
                         #echo overwritten
-                        #cat $datadir/lang/G.fst.txt
+                        cat $datadir/lang/G.fst.txt
                         #echo VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
-
+                        echo L_disambig.fst:
 			echo $datadir/lang/L_disambig.fst
                         ls $datadir/lang/L_disambig.fst
 
