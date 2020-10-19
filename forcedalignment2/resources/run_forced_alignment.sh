@@ -44,7 +44,6 @@ STATUSFILE=$8
 
 #was  ~/clst-asr-fa/lexicon.txt
 
-. ./cmd.sh
 [ -f path.sh ] && . ./path.sh
 set -e
 
