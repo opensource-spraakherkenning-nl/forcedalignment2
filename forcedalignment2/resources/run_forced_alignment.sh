@@ -64,6 +64,8 @@ aligndir=${main_folder_wav}/log
 target_folder=$(pwd)"/align2praat"
 splits="${aligndir}/splits/"
 
+echo stage = $stage
+
 if [ $stage -le 1 ]; then
     if [ $do_conversion -ge 1 ]; then
 	    echo "Starting stage 1/7 - Conversion of wav files from 44.1 Khz to 16 Khz..."
@@ -115,10 +117,18 @@ if [ $stage -le 2 ]; then
 			mkdir -p $datadir $datadir/dict
 			# Copy base files for FST language model
 			cp -p data/local/dict_osnl/extra_questions.txt data/local/dict_osnl/nonsilence_phones.txt data/local/dict_osnl/optional_silence.txt data/local/dict_osnl/phones.txt data/local/dict_osnl/silence_phones.txt $datadir/dict
+                      
 
 			#Preparing wav.scp, segments, utt2spk, spk2utt text file and dictionary for $filename "..."
+			echo ${python_cmd} data/local/data_prep.py --align_tier_name $align_tier_name --speaker_adapt SA --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --dict_file ~/clst-asr-fa/lexicon.txt
 			${python_cmd} data/local/data_prep.py --align_tier_name $align_tier_name --speaker_adapt SA --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --dict_file ~/clst-asr-fa/lexicon.txt
 
+
+#ls -d ${datadir}/dict/*
+#cat  ${datadir}/dict/lexicon.txt
+
+# file  ${datadir}/lang/words.txt does not exist yet
+echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 
 			
 			#Calculating MFCC features from" + filename + "..."
@@ -129,8 +139,17 @@ if [ $stage -le 2 ]; then
 			steps/compute_cmvn_stats.sh $datadir $datadir/log $mfccdir
 			utils/fix_data_dir.sh $datadir
 
+#echo RUN MMMMMMMMMMMMMMMMMMMM
+#ls -d ${datadir}/dict/*
+
 			# Preparing language resources directory" + filename + "..."
+                        echo utils/prepare_lang.sh --sil_prob 0.05 --position-dependent-phones true --num-sil-states 3 ${datadir}/dict UNK ${datadir}/tmp ${datadir}/lang
+
 			utils/prepare_lang.sh --sil_prob 0.05 --position-dependent-phones true --num-sil-states 3 ${datadir}/dict "<UNK>" ${datadir}/tmp ${datadir}/lang
+
+
+#cat ${datadir}/lang/words.txt
+#echo LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
 
 			# Create simple linear FST LM for better alignment
 			${python_cmd} data/local/lang_prep_fst-lm.py --align_tier_name $align_tier_name --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --use_word_int_ids --dict_file ~/clst-asr-fa/lexicon.txt || continue
@@ -160,10 +179,20 @@ if [ $stage -le 2 ]; then
 			scriptdir=/home/ltenbosch/perl
 			scriptdir2="/home/ltenbosch/BNF2LATTICE/step1"
 			echo $ortho | perl $scriptdir/ortho2BNF.pl > $workingdir/BNF.txt
-			# echo tim nam | perl $scriptdir/ortho2BNF.pl > $workingdir/BNF.txt
+                        # cp  $workingdir/BNF.txt ~ # for manipulation
+                        cp $workingdir/BNF.txt $workingdir/BNF.txt_BU
+
+                        # ####### echo overwriting BNF.txt ... importing !!!!!!!!!!!!!!!!!
+                        #cp ~/BNF.txt $workingdir/BNF.txt
+                        #echo BNF.txt overwritten
+			
+                        # echo tim nam | perl $scriptdir/ortho2BNF.pl > $workingdir/BNF.txt
 
 			# 4: build word-based FST from orthography
                         echo workingdir/BNF.txt $workingdir/BNF.txt
+                        cat $workingdir/BNF.txt
+                        echo WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+
 			perl $scriptdir2/bnf_step1_v6.pl $workingdir/BNF.txt > $workingdir/FST_word.txt
                         echo workingdir/FST_word.txt $workingdir/FST_word.txt
 			cat $workingdir/FST_word.txt
@@ -181,12 +210,27 @@ if [ $stage -le 2 ]; then
 			cat $datadir/lang/G.fst.txt_orig | head -1 > $datadir/lang/G.fst.txt 
 			cat $workingdir/FST_int.txt >> $datadir/lang/G.fst.txt
 			# check:
-			# cat $datadir/lang/G.fst.txt
-			
-			ls $datadir/lang/L_disambig.fst
+                        echo G.fst.txt
+			cat $datadir/lang/G.fst.txt
+                        echo UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
+                        # in case of forced overwriting G
+                        # echo forced overwriting G
+                        #cp $datadir/lang/G.fst.txt $datadir/lang/G.fst.txt_BU
+                        #echo copy made
+                        #cp ~/G.fst.txt $datadir/lang/G.fst.txt 
+                        #echo overwritten
+                        #cat $datadir/lang/G.fst.txt
+                        #echo VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+
+			echo $datadir/lang/L_disambig.fst
+                        ls $datadir/lang/L_disambig.fst
 
 			# Starting the actual process of aligning the transcriptions to audio..."
-			steps/online/nnet2/align.sh --beam 5 --retry-beam 100 --cmd "$train_cmd" --nj 1 $datadir ${datadir}/lang $acmod $aligndir/$filename_only || (echo -e "ERROR: Could not decode ${filename}!\nERROR: Look at log in $aligndir/$filename_only/log/align.1.log.");
+			# beam settings 5, 100
+                        steps/online/nnet2/align.sh --beam 5 --retry-beam 100 --cmd "$train_cmd" --nj 1 $datadir ${datadir}/lang $acmod $aligndir/$filename_only || (echo -e "ERROR: Could not decode ${filename}!\nERROR: Look at log in $aligndir/$filename_only/log/align.1.log.");
+
+			# added louis
+			echo $src/bin/ali-to-phones --ctm-output $acmod/final.mdl gunzip $aligndir/$filename_only/ali.1.gz 
 
 			$src/bin/ali-to-phones --ctm-output $acmod/final.mdl ark:"gunzip -c $aligndir/$filename_only/ali.1.gz|" -> $aligndir/$filename_only/ali.1.ctm;
 			# Remove copied acoustic model file 'final.mdl'
@@ -262,6 +306,7 @@ if [ $stage -le 4 ]; then
 	echo "Finished stage 4/7"
 fi
 
+stage=10 # necessary since sometimes errors occur: "Cannot add a boundary at ... seconds, because this is outside the time domain of the intervals"
 
 if [ $stage -le 5 ]; then
 	if [ $create_phone_alignment_tier -ge 1 ]; then
