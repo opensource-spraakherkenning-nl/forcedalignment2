@@ -44,7 +44,7 @@ STATUSFILE=$8
 
 #was  ~/clst-asr-fa/lexicon.txt
 
-. ./cmd.sh 
+. ./cmd.sh
 [ -f path.sh ] && . ./path.sh
 set -e
 
@@ -58,17 +58,14 @@ echo RUN FORCED ALIGNMENT SH
 #which compute_mfcc_feats 1>&2
 #which copy-feats 1>&2
 
-export train_cmd=run.pl 
+export train_cmd=run.pl
 export decode_cmd=run.pl
 export cuda_cmd=run.pl
 export mkgraph_cmd=run.pl
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../../../tools/openfst/lib/
 
-# Praat location, default: praat
-praat_cmd="praat --run"
 # Python compiler location (only tested with Python2.7.x), default: python
-python_cmd=python2.7 # changed louis
 python_cmd=python3   # changed louis Oct 2020
 
 # echo XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  AA
@@ -117,7 +114,7 @@ done
 
 echo $wav16khz 1>&2
 
-	echo "Stage 1/7 - Converting TextGrid files to UTF-8 encoding if necessary..."
+	echo "Stage 1/4 - Converting TextGrid files to UTF-8 encoding if necessary..."
 	# Convert textgrids that are in UTF-16BE format to UTF-8 format for easier processing in
 	# scripts used further down
 	for file in $(find "${main_folder_wav}" -name '*.tg'); do
@@ -138,7 +135,7 @@ echo $wav16khz 1>&2
             echo "Converted $file from ${from_encoding} encoding to utf-8..."
 	    fi
 	done
-    echo "Stage 1/7 - Finished conversion..."
+    echo "Stage 1/4 - Finished conversion..."
 #fi
 
 
@@ -169,7 +166,7 @@ echo $wav16khz 1>&2
 
 
 if [ $stage -le 2 ]; then
-	echo "Starting stage 2/7 - Creating lexicon per utterance and force aligning them..."
+	echo "Starting stage 2/4 - Creating lexicon per utterance and force aligning them..."
 	echo "Creating filelist..."
 	mkdir -p "${aligndir}"
 	for filename in $(find "${main_folder_wav}" -name "*-16khz.wav" -type f -print0 | xargs -0 echo);
@@ -184,7 +181,7 @@ if [ $stage -le 2 ]; then
 			mkdir -p $datadir $datadir/dict
 			# Copy base files for FST language model
 			cp -p data/local/dict_osnl/extra_questions.txt data/local/dict_osnl/nonsilence_phones.txt data/local/dict_osnl/optional_silence.txt data/local/dict_osnl/phones.txt data/local/dict_osnl/silence_phones.txt $datadir/dict
-                      
+
 
 			#Preparing wav.scp, segments, utt2spk, spk2utt text file and dictionary for $filename "..."
 			echo ${python_cmd} data/local/data_prep.py --align_tier_name $align_tier_name --speaker_adapt SA --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --dict_file $backgroundlexicon
@@ -199,7 +196,7 @@ if [ $stage -le 2 ]; then
 # file  ${datadir}/lang/words.txt does not exist yet
 echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 
-			
+
 			#Calculating MFCC features from" + filename + "..."
 			mkdir -p $datadir/mfcc
 			mfccdir=$datadir/mfcc
@@ -259,7 +256,7 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
                         # ####### echo overwriting BNF.txt ... importing !!!!!!!!!!!!!!!!!
                         #cp ~/BNF.txt $workingdir/BNF.txt
                         #echo BNF.txt overwritten
-			
+
                         # echo tim nam | perl $scriptdir/ortho2BNF.pl > $workingdir/BNF.txt
 
 			# 4: build word-based FST from orthography
@@ -274,14 +271,14 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 			#ls ${datadir}/lang/words.txt
 			#echo TTTTTTTTTTTTTTTTTTTTTT
 			#head -20 ${datadir}/lang/words.txt
-			
+
 			#cat $workingdir/FST_word.txt | perl $scriptdir/FST_word2int.pl ${datadir}/lang/words.txt > $workingdir/FST_int.txt
 			#echo output $workingdir/FST_int.txt
 			#cat $workingdir/FST_int.txt
 
 			# recreate $datadir/lang/G.fst.txt by overwriting
 			#mv $datadir/lang/G.fst.txt  $datadir/lang/G.fst.txt_orig
-			#cat $datadir/lang/G.fst.txt_orig | head -1 > $datadir/lang/G.fst.txt 
+			#cat $datadir/lang/G.fst.txt_orig | head -1 > $datadir/lang/G.fst.txt
 			#cat $workingdir/FST_int.txt >> $datadir/lang/G.fst.txt
 			# check:
                         #echo G.fst.txt
@@ -292,7 +289,7 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
                         #cp $datadir/lang/G.fst.txt $datadir/lang/G.fst.txt_BU
 			# cp $datadir/lang/G.fst.txt ~/G.fst.txt_copy
                         #echo copy G.fst made
-                        #cp ~/G.fst.txt_copy $datadir/lang/G.fst.txt 
+                        #cp ~/G.fst.txt_copy $datadir/lang/G.fst.txt
                         #echo overwritten
                         cat $datadir/lang/G.fst.txt
                         #echo VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
@@ -305,7 +302,7 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
                         steps/online/nnet2/align.sh --beam 5 --retry-beam 100 --cmd "$train_cmd" --nj 1 $datadir ${datadir}/lang $acmod $aligndir/$filename_only || (echo -e "ERROR: Could not decode ${filename}!\nERROR: Look at log in $aligndir/$filename_only/log/align.1.log.");
 
 			# added louis
-			echo $src/bin/ali-to-phones --ctm-output $acmod/final.mdl gunzip $aligndir/$filename_only/ali.1.gz 
+			echo $src/bin/ali-to-phones --ctm-output $acmod/final.mdl gunzip $aligndir/$filename_only/ali.1.gz
 
 			#$src/bin/ali-to-phones --ctm-output $acmod/final.mdl ark:"gunzip -c $aligndir/$filename_only/ali.1.gz|" -> $aligndir/$filename_only/ali.1.ctm;
 			#$KALDIbin2/
@@ -323,14 +320,14 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
                 #fi
 	done
 
-	echo "Finished stage 2/7"	
+	echo "Finished stage 2/4"
 fi
 
 
 
 
 if [ $stage -le 3 ]; then
-	echo "Starting stage 3/7 - Merging all individual alignment files into one large file..."
+	echo "Starting stage 3/4 - Merging all individual alignment files into one large file..."
 	# Stage 3 is to merge all the CTM formatted alignments into one big text file and to merge the segment files
 	mergefile="${aligndir}/merged_alignment.txt"
 	truncate -s 0 $mergefile #empty the old mergefile
@@ -338,7 +335,7 @@ if [ $stage -le 3 ]; then
 		cat ${ctmfile} >> $mergefile
 	done;
 	#cat $mergefile | wc -l
-	
+
 	segmentfile="${aligndir}/segments"
 	truncate -s 0 $segmentfile #empty the old segmentfile
 	find ${aligndir} -type d -name "*-16khz" -print | while read -r wavdir; do
@@ -346,12 +343,12 @@ if [ $stage -le 3 ]; then
 	done;
 	#cat $segmentfile | wc -l
 
-	echo "Finished stage 3/7"
+	echo "Finished stage 3/4"
 fi
 
 
 if [ $stage -le 4 ]; then
-	echo "Starting stage 4/7 - Converting phone integer IDs to textual equivalents and obtaining word alignment file..."	
+	echo "Starting stage 4/4 - Converting phone integer IDs to textual equivalents and obtaining word alignment file..."
 	# Convert the phone numbers (integers) in the text file from stage 3 to the textual phones
 	#filename_only=$(basename $filename)
 	#${target_folder}/id2phone.R data/local/dict_osnl/phones.txt ${aligndir}/segments ${aligndir}/merged_alignment.txt ${aligndir}/final_ali.txt
@@ -385,75 +382,15 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 		#file_base=${file_base:0:$final_pos}
 		cat $file | sed 's/\_B//g' | sed 's/\_S//g' | sed 's/\_E//g' | sed 's/\_I//g' > ${splits}/${file_base:0:$final_pos}".tmp"
 		#tail -n +2 ${splits}/${file_base:0:$final_pos}'.tmp'> ${splits}/${file_base:0:$final_pos}'.tmp'
-		sed '1d' ${splits}/${file_base:0:$final_pos}'.tmp' | sponge ${splits}/${file_base:0:$final_pos}'.tmp' 
+		sed '1d' ${splits}/${file_base:0:$final_pos}'.tmp' | sponge ${splits}/${file_base:0:$final_pos}'.tmp'
 		head -n 1 ${aligndir}/final_ali.txt > ${splits}/'firstrow.tmp'
 		sed -i $'s/ /\t/g' ${splits}/'firstrow.tmp'
 		cat ${splits}/'firstrow.tmp' ${splits}/${file_base:0:$final_pos}".tmp" > $file #add column names
 	done;
 
-	echo "Finished stage 4/7"
+	echo "Finished stage 4/4"
 fi
 
 
 
-stage=10 # necessary since sometimes errors occur: "Cannot add a boundary at ... seconds, because this is outside the time domain of the intervals"
-
-if [ $stage -le 5 ]; then
-	if [ $create_phone_alignment_tier -ge 1 ]; then
-	    echo "Starting stage 5/7 - Creating Praat TextGrid files containing phone alignment..."
-	    ${praat_cmd} ${target_folder}/createtextgrid.praat "${splits}" "${main_folder_wav}" "${phone_tier_name}"
-
-	    echo "Finished stage 5/7"
-	else
-	    echo "Skipping stage 5/5 - Not creating phone alignment tier in final TextGrid file..."
-	fi
-fi
-
-
-if [ $stage -le 6 ]; then
-	echo "Starting stage 6/7 - Creating Praat TextGrid files containing word alignment..."
-	${praat_cmd} ${target_folder}/createWordTextGrids.praat "${aligndir}" "${main_folder_wav}" "${splits}" "${word_tier_name}"
-
-	echo "Finished stage 6/7"
-fi
-
-
-if [ $stage -le 7 ]; then
-	echo "Starting stage 7/7 - Merging previously created textgrid files into one including tiers from transcription files..."
-	# Copy textgrid files containing the manual transcriptions to also be able to
-	# stack those.
-	for file in $(find "${main_folder_wav}" -name "*-16khz.wav" -print0 | xargs -0 echo); do
-	#for file in "${main_folder_wav}"/*.wav; do
-	    file_base=$(basename $file)
-	    final_pos=$((${#file_base}-10))
-	    textgrid=${main_folder_wav}/${file_base:0:$final_pos}"_checked.tg"
-	    if [ ! -f ${textgrid} ]
-	    then
-		textgrid=${main_folder_wav}/${file_base:0:$final_pos}".tg"
-	    fi
-	    cp -p ${textgrid} ${splits}/${file_base:0:$final_pos}-16khz_man.tg
-	done;
-
-	${praat_cmd} ${target_folder}/stackTextGrids.praat "${splits}" "${alignments_folder}"
-
-	#rm -f ${splits}/*-16khz_man.tg
-
-	# Convert textgrids that are in UTF-16BE format to UTF-8 format for easier processing in
-	# additional scripts
-	for file in $(find "${alignments_folder}" -name '*_aligned.tg'); do
-	    src_encoding=`file -i "$file"`
-	    if [[ $src_encoding == *"utf-16be"* ]]
-	    then
-		iconv -f utf-16be -t utf-8 "$file" -o "${file}-converted"
-		mv "${file}-converted" "$file"
-		sed -i 's/^\xEF\xBB\xBF//' "$file"
-		echo "Converted $file from utf-16be encoding to utf-8..."
-	    fi
-	done
-
-	# Correct tier end timings and names after the merge
-	${python_cmd} ${target_folder}/correct-tier-timings-n-names.py "${alignments_folder}"
-
-	echo "Finished stage 7/7"
-fi
 echo "Alignment process completed!"
