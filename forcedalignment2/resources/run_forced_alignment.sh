@@ -38,11 +38,25 @@ config_file=$2
 main_folder_wav=$3
 pSPN=$4
 pSIL=$5
+backgroundlexicon=$6
+KALDIbin2=$7 #ali-to-phones # test to kick this out, should be in PATH
+STATUSFILE=$8
 
+#was  ~/clst-asr-fa/lexicon.txt
 
 . ./cmd.sh 
 [ -f path.sh ] && . ./path.sh
 set -e
+
+echo RUN FORCED ALIGNMENT SH
+
+#which extract_segments >> $STATUSFILE
+#which compute_mfcc_feats >> $STATUSFILE
+#which copy-feats >> $STATUSFILE
+
+#which extract_segments 1>&2
+#which compute_mfcc_feats 1>&2
+#which copy-feats 1>&2
 
 export train_cmd=run.pl 
 export decode_cmd=run.pl
@@ -54,7 +68,10 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:../../../tools/openfst/lib/
 # Praat location, default: praat
 praat_cmd="praat --run"
 # Python compiler location (only tested with Python2.7.x), default: python
-python_cmd=python2.7 # changed Louis May 4, 2020
+python_cmd=python2.7 # changed louis
+python_cmd=python3   # changed louis Oct 2020
+
+# echo XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  AA
 
 # Load configurations
 . "$config_file"
@@ -76,16 +93,29 @@ splits="${aligndir}/splits/"
 
 echo stage = $stage
 
-if [ $stage -le 1 ]; then
-    if [ $do_conversion -ge 1 ]; then
-	    echo "Starting stage 1/7 - Conversion of wav files from 44.1 Khz to 16 Khz..."
-	    #converts all .wav files to 16 khz files
-	    ${python_cmd} convertaudiofiles.py --es=$src_encoding --ts=$src_format --rs=$src_sample_rate --cs=$src_nr_channels --et=signed-integer --tt=wav --rt=16000 --ct=1 --bt=16 --append-to-file-name=$append_to_file_name $main_folder_wav *.wav
+#if [ $stage -le 1 ]; then
+#    if [ $do_conversion -ge 1 ]; then
+#	    echo "Starting stage 1/7 - Conversion of wav files from 44.1 Khz to 16 Khz..."
+#	    #converts all .wav files to 16 khz files
+#	    ${python_cmd} convertaudiofiles.py --es=$src_encoding --ts=$src_format --rs=$src_sample_rate --cs=$src_nr_channels --et=signed-integer --tt=wav --rt=16000 --ct=1 --bt=16 --append-to-file-name=$append_to_file_name $main_folder_wav *.wav
+#
+#	    echo "Stage 1/7 - Finished wav file conversion..."
+#    else
+#	echo "Skipping conversion of wav files..."
+# fi
 
-	    echo "Stage 1/7 - Finished wav file conversion..."
-    else
-	echo "Skipping conversion of wav files..."
-    fi
+# wavfile sample frequency conversion
+
+echo XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+echo MAIN FOLDER WAV $main_folder_wav
+
+channel=1
+for wavfile in $(ls $main_folder_wav/*wav); do
+  wav16kHz=`echo "$wavfile" | sed 's/\.wav/-16khz.wav/'`
+  sox "$wavfile" -r 16000 "$wav16kHz" remix $channel
+done
+
+echo $wav16khz 1>&2
 
 	echo "Stage 1/7 - Converting TextGrid files to UTF-8 encoding if necessary..."
 	# Convert textgrids that are in UTF-16BE format to UTF-8 format for easier processing in
@@ -109,7 +139,34 @@ if [ $stage -le 1 ]; then
 	    fi
 	done
     echo "Stage 1/7 - Finished conversion..."
-fi
+#fi
+
+
+# cat $inputdir/${file_id}.txt | perl utils/partition_text.perl "$datadir/"
+#
+#
+#  breakpoints=(0)
+#  for breakpoint in $(cat $datadir/breakpoints.txt)
+#  do
+#  echo ">>> " $breakpoint
+#  breakpoints=(${breakpoints[@]} $breakpoint)
+#  done
+#  wavdur=`sox $inputfile -n stat 2>&1 | grep Length | awk '{print $3}'`
+#  breakpoints=(${breakpoints[@]} $wavdur)
+#
+#  echo ${breakpoints[@]}
+#
+#  for j in $(seq 2 ${#breakpoints[@]})
+#  do
+#  jmin2=`echo $j | awk '{print ($1-2)}'`
+#  jmin1=`echo $j | awk '{print ($1-1)}'`
+#  onset=${breakpoints[$jmin2]}
+#  offset=${breakpoints[$jmin1]}
+#  dur=`echo $offset $onset | awk '{print $1-$2}'`
+#  echo sox $inputfile $datadir/tmp"$jmin2".wav trim $onset $dur
+#  sox $inputfile $datadir/tmp"$jmin2".wav trim $onset $dur
+#  echo -------------------------
+
 
 if [ $stage -le 2 ]; then
 	echo "Starting stage 2/7 - Creating lexicon per utterance and force aligning them..."
@@ -130,9 +187,11 @@ if [ $stage -le 2 ]; then
                       
 
 			#Preparing wav.scp, segments, utt2spk, spk2utt text file and dictionary for $filename "..."
-			echo ${python_cmd} data/local/data_prep.py --align_tier_name $align_tier_name --speaker_adapt SA --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --dict_file ~/clst-asr-fa/lexicon.txt
-			${python_cmd} data/local/data_prep.py --align_tier_name $align_tier_name --speaker_adapt SA --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --dict_file ~/clst-asr-fa/lexicon.txt
+			echo ${python_cmd} data/local/data_prep.py --align_tier_name $align_tier_name --speaker_adapt SA --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --dict_file $backgroundlexicon
+			${python_cmd} data/local/data_prep.py --align_tier_name $align_tier_name --speaker_adapt SA --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --dict_file $backgroundlexicon
 
+
+# what are the OOVs?
 
 #ls -d ${datadir}/dict/*
 #cat  ${datadir}/dict/lexicon.txt
@@ -162,7 +221,7 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 #echo LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
 
 			# Create simple linear FST LM for better alignment
-			${python_cmd} data/local/lang_prep_fst-lm.py --align_tier_name $align_tier_name --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --use_word_int_ids --dict_file ~/clst-asr-fa/lexicon.txt --pSPN $pSPN --pSIL $pSIL || continue
+			${python_cmd} data/local/lang_prep_fst-lm.py --align_tier_name $align_tier_name --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --use_word_int_ids --dict_file $backgroundlexicon --pSPN $pSPN --pSIL $pSIL || continue
 
 			# this creates a textfile G.fst.txt in $datadir/lang
 			# of which the first line does not belong to the actual FST
@@ -172,7 +231,7 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 			ls $datadir/lang/G.fst.txt
 			cat $datadir/lang/G.fst.txt
 			ls $datadir/lang/L.fst
-                        cat $datadir/lang/L.fst
+                        #cat $datadir/lang/L.fst
                         ls $datadir/lang/L00.txt
                         cat $datadir/lang/L00.txt
                         ls $datadir/lang/L_disambig.fst
@@ -189,13 +248,13 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
                         echo orthography read from file $intgname
 			ortho=`cat $intgname | tail -1 | perl -ne 'm/\"(.*)\"/; printf("%s\n", $1);'`
 			echo distilled ortho: $ortho
-			workingdir=$datadir
-			echo workingdir $workingdir
-			scriptdir=/home/ltenbosch/perl
-			scriptdir2="/home/ltenbosch/BNF2LATTICE/step1"
-			echo $ortho | perl $scriptdir/ortho2BNF.pl > $workingdir/BNF.txt
-                        # cp  $workingdir/BNF.txt ~ # for manipulation
-                        cp $workingdir/BNF.txt $workingdir/BNF.txt_BU
+			#workingdir=$datadir
+			#echo workingdir $workingdir
+			#scriptdir=/home/ltenbosch/perl
+			#scriptdir2="/home/ltenbosch/BNF2LATTICE/step1"
+			#echo $ortho | perl $scriptdir/ortho2BNF.pl > $workingdir/BNF.txt
+                        ## cp  $workingdir/BNF.txt ~ # for manipulation
+                        #cp $workingdir/BNF.txt $workingdir/BNF.txt_BU
 
                         # ####### echo overwriting BNF.txt ... importing !!!!!!!!!!!!!!!!!
                         #cp ~/BNF.txt $workingdir/BNF.txt
@@ -204,33 +263,33 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
                         # echo tim nam | perl $scriptdir/ortho2BNF.pl > $workingdir/BNF.txt
 
 			# 4: build word-based FST from orthography
-                        echo workingdir/BNF.txt $workingdir/BNF.txt
-                        cat $workingdir/BNF.txt
-                        echo WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+                        #echo workingdir/BNF.txt $workingdir/BNF.txt
+                        #cat $workingdir/BNF.txt
+                        #echo WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 
-			perl $scriptdir2/bnf_step1_v6.pl $workingdir/BNF.txt > $workingdir/FST_word.txt
-                        echo workingdir/FST_word.txt $workingdir/FST_word.txt
-			cat $workingdir/FST_word.txt
+			#perl $scriptdir2/bnf_step1_v6.pl $workingdir/BNF.txt > $workingdir/FST_word.txt
+                        #echo workingdir/FST_word.txt $workingdir/FST_word.txt
+			#cat $workingdir/FST_word.txt
                         # 5: transform word-based FST to integer-based FST
 			#ls ${datadir}/lang/words.txt
-			echo TTTTTTTTTTTTTTTTTTTTTT
-			head -20 ${datadir}/lang/words.txt
+			#echo TTTTTTTTTTTTTTTTTTTTTT
+			#head -20 ${datadir}/lang/words.txt
 			
-			cat $workingdir/FST_word.txt | perl $scriptdir/FST_word2int.pl ${datadir}/lang/words.txt > $workingdir/FST_int.txt
-			echo output $workingdir/FST_int.txt
-			cat $workingdir/FST_int.txt
+			#cat $workingdir/FST_word.txt | perl $scriptdir/FST_word2int.pl ${datadir}/lang/words.txt > $workingdir/FST_int.txt
+			#echo output $workingdir/FST_int.txt
+			#cat $workingdir/FST_int.txt
 
 			# recreate $datadir/lang/G.fst.txt by overwriting
 			#mv $datadir/lang/G.fst.txt  $datadir/lang/G.fst.txt_orig
 			#cat $datadir/lang/G.fst.txt_orig | head -1 > $datadir/lang/G.fst.txt 
 			#cat $workingdir/FST_int.txt >> $datadir/lang/G.fst.txt
 			# check:
-                        echo G.fst.txt
-			cat $datadir/lang/G.fst.txt
-                        echo UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
+                        #echo G.fst.txt
+			#cat $datadir/lang/G.fst.txt
+                        #echo UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
                         # in case of forced overwriting G
                         # echo forced overwriting G
-                        cp $datadir/lang/G.fst.txt $datadir/lang/G.fst.txt_BU
+                        #cp $datadir/lang/G.fst.txt $datadir/lang/G.fst.txt_BU
 			# cp $datadir/lang/G.fst.txt ~/G.fst.txt_copy
                         #echo copy G.fst made
                         #cp ~/G.fst.txt_copy $datadir/lang/G.fst.txt 
@@ -248,7 +307,12 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 			# added louis
 			echo $src/bin/ali-to-phones --ctm-output $acmod/final.mdl gunzip $aligndir/$filename_only/ali.1.gz 
 
-			$src/bin/ali-to-phones --ctm-output $acmod/final.mdl ark:"gunzip -c $aligndir/$filename_only/ali.1.gz|" -> $aligndir/$filename_only/ali.1.ctm;
+			#$src/bin/ali-to-phones --ctm-output $acmod/final.mdl ark:"gunzip -c $aligndir/$filename_only/ali.1.gz|" -> $aligndir/$filename_only/ali.1.ctm;
+			#$KALDIbin2/
+			which ali-to-phones
+			ali-to-phones --ctm-output $acmod/final.mdl ark:"gunzip -c $aligndir/$filename_only/ali.1.gz|" -> $aligndir/$filename_only/ali.1.ctm;
+
+
 			# Remove copied acoustic model file 'final.mdl'
 			rm -f $aligndir/$filename_only/final.mdl
 		else
@@ -261,6 +325,8 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 
 	echo "Finished stage 2/7"	
 fi
+
+
 
 
 if [ $stage -le 3 ]; then
@@ -290,6 +356,12 @@ if [ $stage -le 4 ]; then
 	#filename_only=$(basename $filename)
 	#${target_folder}/id2phone.R data/local/dict_osnl/phones.txt ${aligndir}/segments ${aligndir}/merged_alignment.txt ${aligndir}/final_ali.txt
 	${python_cmd} ${target_folder}/id2phone.py --phonefile data/local/dict_osnl/phones.txt --segmentfile ${aligndir}/segments --alignfile ${aligndir}/merged_alignment.txt --outputfile ${aligndir}/final_ali.txt
+
+echo ${aligndir}/final_ali.txt
+cat ${aligndir}/final_ali.txt
+echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+
+
 	# Not sure what this exactly does, but it seems to split the above modified text file for sorting
 	# and applying the proper order of entries
 	rm -rf ${splits}
@@ -321,6 +393,8 @@ if [ $stage -le 4 ]; then
 
 	echo "Finished stage 4/7"
 fi
+
+
 
 stage=10 # necessary since sometimes errors occur: "Cannot add a boundary at ... seconds, because this is outside the time domain of the intervals"
 
