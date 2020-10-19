@@ -47,7 +47,7 @@ STATUSFILE=$8
 [ -f path.sh ] && . ./path.sh
 set -e
 
-echo RUN FORCED ALIGNMENT SH
+echo RUN FORCED ALIGNMENT SH >&2
 
 #which extract_segments >> $STATUSFILE
 #which compute_mfcc_feats >> $STATUSFILE
@@ -87,7 +87,7 @@ aligndir=${main_folder_wav}/log
 target_folder=$(pwd)"/align2praat"
 splits="${aligndir}/splits/"
 
-echo stage = $stage
+echo stage = $stage >&2
 
 #if [ $stage -le 1 ]; then
 #    if [ $do_conversion -ge 1 ]; then
@@ -102,8 +102,8 @@ echo stage = $stage
 
 # wavfile sample frequency conversion
 
-echo XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-echo MAIN FOLDER WAV $main_folder_wav
+echo XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX >&2
+echo MAIN FOLDER WAV $main_folder_wav >&2
 
 channel=1
 for wavfile in $(ls $main_folder_wav/*wav); do
@@ -113,7 +113,7 @@ done
 
 echo $wav16khz 1>&2
 
-	echo "Stage 1/4 - Converting TextGrid files to UTF-8 encoding if necessary..."
+	echo "Stage 1/4 - Converting TextGrid files to UTF-8 encoding if necessary..." >&2
 	# Convert textgrids that are in UTF-16BE format to UTF-8 format for easier processing in
 	# scripts used further down
 	for file in $(find "${main_folder_wav}" -name '*.tg'); do
@@ -131,10 +131,10 @@ echo $wav16khz 1>&2
             iconv -f ${from_encoding} -t utf-8 "$file" -o "${file}-converted"
             mv "${file}-converted" "$file"
             sed -i 's/^\xEF\xBB\xBF//' "$file"
-            echo "Converted $file from ${from_encoding} encoding to utf-8..."
+            echo "Converted $file from ${from_encoding} encoding to utf-8..." >&2
 	    fi
 	done
-    echo "Stage 1/4 - Finished conversion..."
+    echo "Stage 1/4 - Finished conversion..." >&2
 #fi
 
 
@@ -165,8 +165,8 @@ echo $wav16khz 1>&2
 
 
 if [ $stage -le 2 ]; then
-	echo "Starting stage 2/4 - Creating lexicon per utterance and force aligning them..."
-	echo "Creating filelist..."
+	echo "Starting stage 2/4 - Creating lexicon per utterance and force aligning them..." >&2
+	echo "Creating filelist..." >&2
 	mkdir -p "${aligndir}"
 	for filename in $(find "${main_folder_wav}" -name "*-16khz.wav" -type f -print0 | xargs -0 echo);
 	do
@@ -183,7 +183,7 @@ if [ $stage -le 2 ]; then
 
 
 			#Preparing wav.scp, segments, utt2spk, spk2utt text file and dictionary for $filename "..."
-			echo ${python_cmd} data/local/data_prep.py --align_tier_name $align_tier_name --speaker_adapt SA --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --dict_file $backgroundlexicon
+			echo ${python_cmd} data/local/data_prep.py --align_tier_name $align_tier_name --speaker_adapt SA --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --dict_file $backgroundlexicon >&2
 			${python_cmd} data/local/data_prep.py --align_tier_name $align_tier_name --speaker_adapt SA --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --dict_file $backgroundlexicon
 
 
@@ -193,7 +193,7 @@ if [ $stage -le 2 ]; then
 #cat  ${datadir}/dict/lexicon.txt
 
 # file  ${datadir}/lang/words.txt does not exist yet
-echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP >&2
 
 
 			#Calculating MFCC features from" + filename + "..."
@@ -208,7 +208,7 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 #ls -d ${datadir}/dict/*
 
 			# Preparing language resources directory" + filename + "..."
-                        echo utils/prepare_lang.sh --sil_prob 0.05 --position-dependent-phones true --num-sil-states 3 ${datadir}/dict UNK ${datadir}/tmp ${datadir}/lang
+                        echo utils/prepare_lang.sh --sil_prob 0.05 --position-dependent-phones true --num-sil-states 3 ${datadir}/dict UNK ${datadir}/tmp ${datadir}/lang >&2
 
 			utils/prepare_lang.sh --sil_prob 0.05 --position-dependent-phones true --num-sil-states 3 ${datadir}/dict "<UNK>" ${datadir}/tmp ${datadir}/lang
 
@@ -241,7 +241,7 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 			# 2: get path name of .wav file (use same for .tg)
 			# 3: get orthography from .tg
 			# assume the orthography resides on last line between double quotes
-                        echo orthography read from file $intgname
+                        echo orthography read from file $intgname >&2
 			ortho=`cat $intgname | tail -1 | perl -ne 'm/\"(.*)\"/; printf("%s\n", $1);'`
 			echo distilled ortho: $ortho
 			#workingdir=$datadir
@@ -312,21 +312,21 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 			# Remove copied acoustic model file 'final.mdl'
 			rm -f $aligndir/$filename_only/final.mdl
 		else
-			echo "Skipping processing of file '$filename'. Result file '$aligndir/$filename_only/ali.1.ctm' already exists!"
+			echo "Skipping processing of file '$filename'. Result file '$aligndir/$filename_only/ali.1.ctm' already exists!" >&2
 		fi
                 #else
                 #	echo "Skipping $filename, because it is an extemporaneous recording."
                 #fi
 	done
 
-	echo "Finished stage 2/4"
+	echo "Finished stage 2/4" >&2
 fi
 
 
 
 
 if [ $stage -le 3 ]; then
-	echo "Starting stage 3/4 - Merging all individual alignment files into one large file..."
+	echo "Starting stage 3/4 - Merging all individual alignment files into one large file..." >&2
 	# Stage 3 is to merge all the CTM formatted alignments into one big text file and to merge the segment files
 	mergefile="${aligndir}/merged_alignment.txt"
 	truncate -s 0 $mergefile #empty the old mergefile
@@ -342,18 +342,18 @@ if [ $stage -le 3 ]; then
 	done;
 	#cat $segmentfile | wc -l
 
-	echo "Finished stage 3/4"
+	echo "Finished stage 3/4" >&2
 fi
 
 
 if [ $stage -le 4 ]; then
-	echo "Starting stage 4/4 - Converting phone integer IDs to textual equivalents and obtaining word alignment file..."
+	echo "Starting stage 4/4 - Converting phone integer IDs to textual equivalents and obtaining word alignment file..." >&2
 	# Convert the phone numbers (integers) in the text file from stage 3 to the textual phones
 	#filename_only=$(basename $filename)
 	#${target_folder}/id2phone.R data/local/dict_osnl/phones.txt ${aligndir}/segments ${aligndir}/merged_alignment.txt ${aligndir}/final_ali.txt
 	${python_cmd} ${target_folder}/id2phone.py --phonefile data/local/dict_osnl/phones.txt --segmentfile ${aligndir}/segments --alignfile ${aligndir}/merged_alignment.txt --outputfile ${aligndir}/final_ali.txt
 
-echo ${aligndir}/final_ali.txt
+echo ${aligndir}/final_ali.txt >&2
 cat ${aligndir}/final_ali.txt
 echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 
@@ -387,7 +387,7 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 		cat ${splits}/'firstrow.tmp' ${splits}/${file_base:0:$final_pos}".tmp" > $file #add column names
 	done;
 
-	echo "Finished stage 4/4"
+	echo "Finished stage 4/4" >&2
 fi
 
 
