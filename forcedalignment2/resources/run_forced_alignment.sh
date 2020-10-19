@@ -2,6 +2,8 @@
 #SBATCH --mem=2G
 #SBATCH -N 1 -n 2
 
+# pSIL and pSPN: see below
+
 # Location of config file
 config_file="align_config.rc"
 usage="Usage: $0 [--config <path-to-config-file>] <subfolder-of-root-specified-in-config-file>"
@@ -152,7 +154,7 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 #echo LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
 
 			# Create simple linear FST LM for better alignment
-			${python_cmd} data/local/lang_prep_fst-lm.py --align_tier_name $align_tier_name --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --use_word_int_ids --dict_file ~/clst-asr-fa/lexicon.txt || continue
+			${python_cmd} data/local/lang_prep_fst-lm.py --align_tier_name $align_tier_name --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --use_word_int_ids --dict_file ~/clst-asr-fa/lexicon.txt --pSPN 0.005 --pSIL 0.005 || continue
 
 			# this creates a textfile G.fst.txt in $datadir/lang
 			# of which the first line does not belong to the actual FST
@@ -206,9 +208,9 @@ echo PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
 			cat $workingdir/FST_int.txt
 
 			# recreate $datadir/lang/G.fst.txt by overwriting
-			mv $datadir/lang/G.fst.txt  $datadir/lang/G.fst.txt_orig
-			cat $datadir/lang/G.fst.txt_orig | head -1 > $datadir/lang/G.fst.txt 
-			cat $workingdir/FST_int.txt >> $datadir/lang/G.fst.txt
+			#mv $datadir/lang/G.fst.txt  $datadir/lang/G.fst.txt_orig
+			#cat $datadir/lang/G.fst.txt_orig | head -1 > $datadir/lang/G.fst.txt 
+			#cat $workingdir/FST_int.txt >> $datadir/lang/G.fst.txt
 			# check:
                         echo G.fst.txt
 			cat $datadir/lang/G.fst.txt
