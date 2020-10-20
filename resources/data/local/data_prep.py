@@ -293,7 +293,7 @@ for word in wordset:
                 dictp.write(dictpline)
                 found = True
                 #louis: uncommented next line: keep searching for other matching orthographies
-		# break
+        # break
         if not found:
             #matches = difflib.get_close_matches(word, newlexicon[:,0])
             #for match in matches:
