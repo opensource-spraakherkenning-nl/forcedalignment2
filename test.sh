@@ -1,4 +1,8 @@
 #1/bin/bash
+if [ -z "$KALDI_ROOT" ]; then
+    echo "\$KALDI_ROOT must be set prior to running the test (are you in a LaMachine environment with kaldi?)">&2
+    exit 2
+fi
 
 if [ -d resources ]; then
     RESOURCEDIR=$(realpath resources)
