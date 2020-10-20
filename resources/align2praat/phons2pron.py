@@ -1,24 +1,25 @@
-#! /usr/bin/python
+#!/bin/env python3
 
 #  phons2words.py
 #
 #
 #  Created by Eleanor Chodroff on 2/07/16.
 
-import sys,re,glob,pdb
+import sys
+import glob
 
 
 split_folder=sys.argv[1]
 target_file=sys.argv[2]
 
-pron_ali=open(target_file,'w')
+pron_ali=open(target_file,'w', encoding="utf-8")
 pron=[]
 files = glob.glob(split_folder+'/*.txt')
 
 # process each file
 for filei in files:
 #    print filei
-    f = open(filei, 'r')
+    f = open(filei, 'r', encoding="utf-8")
     for line in f:
         line=line.split("\t")
         file=line[1]
@@ -49,4 +50,5 @@ for filei in files:
             pron=[]
         if pos == "I":
             pron.append(phon)
+    f.close()
 pron_ali.close()

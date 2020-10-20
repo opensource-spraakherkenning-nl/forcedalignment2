@@ -1,3 +1,5 @@
+#!/bin/env python3
+
 import argparse, os, sys
 #import difflib
 import numpy as np
