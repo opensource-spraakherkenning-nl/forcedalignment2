@@ -16,13 +16,11 @@
 
 INPUTDIRECTORY=$1
 SCRATCHDIRECTORY=$2
-EXT_RESOURCESDIRECTORY=$3
+RESOURCESDIRECTORY=$3
 # changed to External Resource Dir
 OUTPUTDIRECTORY=$4
 WEBSERVICEDIRECTORY=$5
 STATUSFILE=$6
-
-RESOURCESDIRECTORY=$WEBSERVICEDIRECTORY/resources
 
 echo input dir $INPUTDIRECTORY >&2
 echo scratch dir $SCRATCHDIRECTORY >&2
@@ -62,7 +60,7 @@ mkdir -p $SCRATCHDIRECTORY || die "unable to make scratch directory $SCRATCHDIRE
 #KALDIbin=/vol/tensusers2/eyilmaz/local/bin
 #G2PFSTfile=/home/ltenbosch/KALDI_g2p/train_dutch/model.fst
 
-backgroundlexicon=$EXT_RESOURCESDIRECTORY/lexicons/lexicon_from_MARIO.txt
+backgroundlexicon=$RESOURCESDIRECTORY/lexicons/lexicon_from_MARIO.txt
 configfile=$RESOURCESDIRECTORY/config/align_config.rc
 scriptdir=$RESOURCESDIRECTORY
 mothertg=$RESOURCESDIRECTORY/textgrids/MOTHER.tg
