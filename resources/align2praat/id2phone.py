@@ -1,8 +1,7 @@
-import argparse,sys, csv
+import sys
+import csv
+import argparse
 import pandas as pd
-
-reload(sys)
-sys.setdefaultencoding('utf8')
 
 parser = argparse.ArgumentParser(description='Lexicon preparation')
 parser.add_argument('--phonefile', help='insert textfile with all phones', type=str, required=True)
@@ -35,17 +34,3 @@ ctm3["end_real"] = ctm3["start_utt"] + ctm3["dur"]
 
 ctm3 = ctm3[['file_utt','file','id','utt','start','dur','phone','start_utt','end_utt','start_real','end_real']]
 ctm3.to_csv(args.outputfile,sep="\t",index=False)
-'''
-
-names(ctm) <- c("file_utt","utt","start","dur","id")
-ctm$file <- ctm$file_utt
-names(phones) <- c("phone","id")
-names(segments) <- c("file_utt","file","start_utt","end_utt")
-
-ctm2 <- merge(ctm, phones, by="id")
-ctm3 <- merge(ctm2, segments, by=c("file_utt","file"))
-ctm3$start_real <- ctm3$start + ctm3$start_utt
-ctm3$end_real <- ctm3$start_utt + ctm3$dur
-
-write.table(ctm3, output_file, row.names=F, quote=F, sep="\t")
-'''
