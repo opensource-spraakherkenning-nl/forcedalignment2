@@ -13,7 +13,7 @@
 # instead of the original 'compile-train-graphs'
 # Last modified: 2018-03-16 by Mario Ganzeboom
 
-# Begin configuration section.  
+# Begin configuration section.
 nj=4
 cmd=run.pl
 # Begin configuration.
@@ -26,7 +26,7 @@ use_gpu=no
 echo "$0 $@"  # Print the command line for logging
 
 [ -f path.sh ] && . ./path.sh # source the path.
-. parse_options.sh || exit 1;
+. utils/parse_options.sh || exit 1;
 
 if [ $# != 4 ]; then
    echo "Usage: $0 <data-dir> <lang-dir> <src-dir> <align-dir>"
@@ -83,9 +83,9 @@ echo echoes:
 
 echo 'compile-train-graphs-fsts --read-disambig-syms=$lang/phones/disambig.int $dir/tree $srcdir/${iter}.mdl $lang/L_disambig.fst ark,t:$lang/G.fst.txt ark:- \| nnet-align-compiled $scale_opts --use-gpu=$use_gpu --beam=$beam --retry-beam=$retry_beam $srcdir/${iter}.mdl ark:- "$feats" "ark:|gzip -c >$dir/ali.JOB.gz" '
 
-echo compile-train-graphs-fsts --read-disambig-syms=$lang/phones/disambig.int $dir/tree $srcdir/${iter}.mdl $lang/L_disambig.fst ark,t:$lang/G.fst.txt ark:- 
+echo compile-train-graphs-fsts --read-disambig-syms=$lang/phones/disambig.int $dir/tree $srcdir/${iter}.mdl $lang/L_disambig.fst ark,t:$lang/G.fst.txt ark:-
 
-echo nnet-align-compiled $scale_opts --use-gpu=$use_gpu --beam=$beam --retry-beam=$retry_beam  $srcdir/${iter}.mdl ark:- "$feats" "ark:|gzip -c >$dir/ali.JOB.gz" 
+echo nnet-align-compiled $scale_opts --use-gpu=$use_gpu --beam=$beam --retry-beam=$retry_beam  $srcdir/${iter}.mdl ark:- "$feats" "ark:|gzip -c >$dir/ali.JOB.gz"
 echo $cmd
 echo JOB=1:$nj $dir/log/align.JOB.log
 
