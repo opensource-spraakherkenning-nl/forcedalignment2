@@ -1,0 +1,34 @@
+# Configuration file for all adjustable settings of the Chasing Neural Nets for Forced Alignment
+
+# The root folder containing the subfolders with audio files to force align. Use the empty string ("") if you specify it
+# on the command line together with the subfolders.
+root_data_folder=""
+#root_data_folder=""
+# Absolute path to the directory to store the alignments (i.e. Praat TextGrid files). Leave empty to store in the same directory
+# as the wav files that are force aligned. (Default: "")
+alignments_folder=""
+# Specify the starting stage. If the audio files are already converted to 16 kHz start at stage 2, otherwise start at stage 1. # louis: choice 2 does not work it seems
+stage=1
+# Specify the location of the acoustic models that will be used for the alignment (absolute or relative to the clst-asr_forced-aligner eg's root directory)
+acmod="exp/osnl-nnet2-online"
+# Location of Kaldi binaries to use (Default: ../../../src, relative to the clst-asr_forced-aligner eg's root directory)
+src="../../../src"
+
+# Data preparation configuration options
+# Name of tier in the textgrid files to use for forced alignment. Default: transcription
+align_tier_name="transcription"
+# Name of word level alignment tier in resulting textgrid file.
+word_tier_name="word"
+# Name of phone level alignment tier in resulting textgrid file.
+phone_tier_name="kaldiphone"
+
+# Audio files as input to the force aligner should be uncompressed, 16 bit, signed integer, mono wav format with a sample frequency
+# of 16000 Hz (16 KHz). If your audio files do not have this format this force alignment script can convert them for you. Please
+# specify if conversion is required and additional details below
+do_conversion=1 # specify 1 to do conversion, 0 to skip
+src_encoding="signed-integer" # Source audio encoding (for more values see -e option under 'sox --help' command)
+src_format="wav" # Format of audio source file (see at the bottom of 'sox --help' command for additional formats)
+src_sample_rate=16000 # 44100 # Sample rate of audio source file
+src_nr_channels=1 # Number of channels of audio source file (1 = mono, 2 = stereo, etc.)
+append_to_file_name="-16khz" # Text appended at the end of the file name of the converted audio file
+
