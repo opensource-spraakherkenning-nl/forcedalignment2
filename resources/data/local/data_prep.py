@@ -39,7 +39,7 @@ fid_utt = open(os.path.join(data_folder,'utt2spk'),"w",encoding="utf-8")
 fid_wav = open(os.path.join(data_folder,'wav.scp'),"w",encoding="utf-8")
 
 print(args.dict_file,file=sys.stderr)
-dict_full = open(args.dict_file, "rb", encoding="utf-8")
+dict_full = open(args.dict_file, "r", encoding="utf-8")
 
 dict = open(os.path.join(data_folder,'dict','lexicon.txt'), "w",encoding="utf-8")
 dictp = open(os.path.join(data_folder,'dict','lexiconp.txt'), "w",encoding="utf-8")
