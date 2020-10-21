@@ -1,14 +1,10 @@
-import argparse, codecs, os, sys
-import numpy as np
-import difflib
-import io
+import argparse
+import os
+import sys
 import math
 from praat import textgrid
 
 def main(argv):
-    reload(sys)
-    sys.setdefaultencoding('utf8')
-
     parser = argparse.ArgumentParser(description='Lexicon preparation')
     parser.add_argument('--wav_file', help='the wav file that is being preprocessed', type=str, required=True)
     parser.add_argument('--annot_folder', help='the folder with the tg files that is used for preprocessing', type=str, required=True)
@@ -18,9 +14,9 @@ def main(argv):
     parser.add_argument('--dict_file', help='Main lexicon that contains phoneme translations of regular words. Default: data/local/dict_osnl/lexicon.txt', \
         type=str, default=os.path.join(os.getcwd(),"data","local","dict_osnl","lexicon.txt"))
     parser.add_argument('--spkr_noise_sym', help='The word in the lexicon denoting speaker noise (e.g. lip smacks, tongue clicks, heavy breathing, etc). Default: <SPN>', \
-        type=str, default=u"<SPN>")
+        type=str, default="<SPN>")
     parser.add_argument('--gen_noise_sym', help='The word in the lexicon denoting general noise (e.g. environmental, microphone clicks, etc.). Default: <NSN>', \
-        type=str, default=u"<NSN>")
+        type=str, default="<NSN>")
     parser.add_argument('--pSPN', help='pSPN. Default 0.05', type=float, default=0.05)
     parser.add_argument('--pSIL', help='pSIL. Default 0.05', type=float, default=0.05)
 
@@ -34,14 +30,14 @@ def main(argv):
     pSPN = args.pSPN
     pSIL = args.pSIL
 
-    dict_full = codecs.open(args.dict_file, "rb", "utf-8")
+    dict_full = open(args.dict_file, "r", encoding="utf-8")
 
     # Check if a checked version of the transcribed recording is available. If
     # not, use the unchecked version.
     file_path = os.path.join(main_folder_annot,filename[:-len('-16khz.wav')]+'_checked.tg')
     if not(os.path.isfile(file_path)):
         file_path = os.path.join(main_folder_annot,filename[:-len('-16khz.wav')]+'.tg')
-    print "Processing file '" + filename + "'..."
+    print("Processing file '" + filename + "'...",file=sys.stderr)
 
     textgrid_fp = textgrid.Textgrid()
     textgrid_fp.read(file_path)
@@ -52,7 +48,7 @@ def main(argv):
                 text=interval.text.replace(u'++', u''). \
                     replace(u'.', u'').replace(u',', u'').replace(u'?', u'').replace(u'*r', u'')
                 #print(text)
-                text = u"".join(c for c in text if c not in  (u'!',u'.',u':',u'?',u',',u'\n',u'\r',u'"',u'|',u';',u'(',u')',u'[',u']',u'{',u'}',u'#',u'_',u'+',u'&lt',u'&gt',u'\\'))
+                text = "".join(c for c in text if c not in  (u'!',u'.',u':',u'?',u',',u'\n',u'\r',u'"',u'|',u';',u'(',u')',u'[',u']',u'{',u'}',u'#',u'_',u'+',u'&lt',u'&gt',u'\\'))
                 fields = text.lower().split()
                 # louis: next lines changed since they prohibited words containing mm e.g. gezwommen to pass though
                 for ele in fields:
@@ -69,11 +65,11 @@ def main(argv):
                 text = text.replace(args.spkr_noise_sym.lower(), args.spkr_noise_sym).replace(args.gen_noise_sym.lower(), args.gen_noise_sym).replace("<sil>", "<SIL>")
 
                 # Create a strict, linear FST LM for every utterance
-                fst_lm_fp = io.open(os.path.join(data_folder, "lang", "G.fst.txt"), mode="w", encoding="utf-8")
-                fst_lines = [unicode(filename[:-len('.wav')]) + "\n"]
+                fst_lm_fp = open(os.path.join(data_folder, "lang", "G.fst.txt"), mode="w", encoding="utf-8")
+                fst_lines = [str(filename[:-len('.wav')]) + "\n"]
                 if args.use_word_int_ids:
                     words_dict = {}
-                    words_dict_fp = io.open(os.path.join(args.data_folder, "lang", "words.txt"), mode="r", encoding="utf-8")
+                    words_dict_fp = open(os.path.join(args.data_folder, "lang", "words.txt"), mode="r", encoding="utf-8")
                     for line in words_dict_fp:
                         line_split = line.split()
                         words_dict[line_split[0]] = line_split[1]
@@ -81,7 +77,7 @@ def main(argv):
                     # maybe better to couple this prob to SIL as well
                     #pSPN = 0.005 # now in arg list
                     # pSIL = pSPN # now in arg list
-                    
+
                     int_lines = create_int_fst_for_utt(text.split(), words_dict,pSPN, pSIL)
                     if int_lines != None:
                         fst_lines += int_lines
@@ -93,7 +89,7 @@ def main(argv):
                     fst_lines += create_textual_fst_for_utt(text.split())
                 fst_lm_fp.writelines(fst_lines)
                 fst_lm_fp.close()
-                
+
     else:
         sys.stderr.write("Error in processing file '" + file_path + "'! Could not find tier '" + args.align_tier_name + "' to process!\nAborting...\n")
         sys.exit(1)
@@ -106,27 +102,27 @@ should be separated by a single whitespace character.
 @return fst_lines - String array containing the lines that make up the FST.
 """
 def create_textual_fst_for_utt(utt):
-    sil = u"<SIL>"
-    spn = u"<SPN>"
+    sil = "<SIL>"
+    spn = "<SPN>"
 
     fst_lines = []
     state_nr = 0
     word_nr = 0
     for word in utt:
         if word_nr < len(utt):
-            fst_lines.append(unicode(state_nr) + u" " + unicode(state_nr+1) + u" " + word + u" " + word + u" " + unicode(-math.log(float(1.0/3))) + u"\n")
-            fst_lines.append(unicode(state_nr) + u" " + unicode(state_nr+1) + u" " + spn + u" " + spn + u" " + unicode(-math.log(float(1.0/3))) + u"\n")
-            fst_lines.append(unicode(state_nr) + u" " + unicode(state_nr+1) + u" " + sil + u" " + sil + u" " + unicode(-math.log(float(1.0/3))) + u"\n")
-            #fst_lines.append(unicode(state_nr) + u" " + unicode(state_nr) + u" " + sil + u" " + sil + u" " + unicode(-math.log(float(1.0/4))) + u"\n")
+            fst_lines.append(str(state_nr) + " " + str(state_nr+1) + " " + word + " " + word + " " + str(-math.log(float(1.0/3))) + "\n")
+            fst_lines.append(str(state_nr) + " " + str(state_nr+1) + " " + spn + " " + spn + " " + str(-math.log(float(1.0/3))) + "\n")
+            fst_lines.append(str(state_nr) + " " + str(state_nr+1) + " " + sil + " " + sil + " " + str(-math.log(float(1.0/3))) + "\n")
+            #fst_lines.append(str(state_nr) + " " + str(state_nr) + " " + sil + " " + sil + " " + str(-math.log(float(1.0/4))) + "\n")
         state_nr += 1
-    
+
     # Add the final state at the end
-    fst_lines.append(unicode(state_nr) + u" 0.0")
+    fst_lines.append(str(state_nr) + " 0.0")
 
     return fst_lines
-    
+
 """
-Creates a FST in text format for the specified utterance, but using the integer 
+Creates a FST in text format for the specified utterance, but using the integer
 IDs for the words instead of the word strings themselves.
 @param utt - String containing the utterance for which to create a FST in text
 (minus annotation tags, interpunction characters, etc.). Words in the utterance
@@ -137,8 +133,8 @@ their integer IDs.
 """
 def create_int_fst_for_utt(utt, words_dict, pSPN, pSIL):
     # print(utt)
-    sil = words_dict[u"<SIL>"]
-    spn = words_dict[u"<SPN>"]
+    sil = words_dict["<SIL>"]
+    spn = words_dict["<SPN>"]
 
     fst_lines = []
     state_nr = 0
@@ -149,22 +145,22 @@ def create_int_fst_for_utt(utt, words_dict, pSPN, pSIL):
                 # print("qqqqqqqqqqqqqqq")
                 # print(word)
                 word = words_dict[word]
-                # print(unicode(word))
-                fst_lines.append(unicode(state_nr) + u" " + unicode(state_nr+1) + u" " + unicode(word) + u" " + unicode(word) + u" " + unicode(-math.log(float(0.9))) + u"\n")
-                fst_lines.append(unicode(state_nr) + u" " + unicode(state_nr+1) + u" " + unicode(spn) + u" " + unicode(spn) + u" " + unicode(-math.log(float(pSPN))) + u"\n")
-                fst_lines.append(unicode(state_nr) + u" " + unicode(state_nr+1) + u" " + unicode(sil) + u" " + unicode(sil) + u" " + unicode(-math.log(float(pSIL))) + u"\n")
+                # print(str(word))
+                fst_lines.append(str(state_nr) + " " + str(state_nr+1) + " " + str(word) + " " + str(word) + " " + str(-math.log(float(0.9))) + "\n")
+                fst_lines.append(str(state_nr) + " " + str(state_nr+1) + " " + str(spn) + " " + str(spn) + " " + str(-math.log(float(pSPN))) + "\n")
+                fst_lines.append(str(state_nr) + " " + str(state_nr+1) + " " + str(sil) + " " + str(sil) + " " + str(-math.log(float(pSIL))) + "\n")
                 state_nr += 1
             else:
-                print(word.encode("utf-8"))
+                print(word)
                 # A word from the transcription is missing stop generating the fst
                 fst_lines = None
                 break
-    
+
     if fst_lines != None:
         # Add the final state at the end
-        fst_lines.append(unicode(state_nr) + u" 0.0")
+        fst_lines.append(str(state_nr) + " 0.0")
 
     return fst_lines
-        
+
 if __name__ == '__main__':
     main(sys.argv[1:])
