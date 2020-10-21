@@ -9,13 +9,21 @@ PERLdir=$5
 KALDIbin=$6
 G2PFSTfile=$7
 
+die() {
+    echo "-------------- fatal error ----------------" >&2
+    echo "$1" >&2
+    echo "-------------------------------------------" >&2
+    exit 2
+}
+
 rm -rf $OOVlexout
 touch $OOVlexout
 
 # using phonetisaurus
 #KALDIbin was /vol/tensusers2/eyilmaz/local/bin
 #export PATH=$KALDIbin:$PATH # use of KALDIbin export to be avoided in webservice
-echo phonetisaurus PATH in g2p.sh IMPORTANT
+
+#phonetisaurus must be in PATH in g2p.sh IMPORTANT
 
 rm -f $scratchdir/OOVwordlist.txt
 for tgfile in $(ls $workingdir/*.tg); do
@@ -26,7 +34,7 @@ done
 
 cat $scratchdir/OOVwordlist.txt | sort | uniq > $scratchdir/OOVwordlist_sorted.txt
 #phonetisaurus-apply --model /home/ltenbosch/KALDI_g2p/train_dutch/model.fst --word_list $scratchdir/OOVwordlist_sorted.txt -n 1 > $OOVlexout
-phonetisaurus-apply --model $G2PFSTfile --word_list $scratchdir/OOVwordlist_sorted.txt -n 1 > $OOVlexout || exit 2
+phonetisaurus-apply --model $G2PFSTfile --word_list $scratchdir/OOVwordlist_sorted.txt -n 1 > $OOVlexout || die "phonetisaurus-apply failed"
 
 
 rm $scratchdir/OOVwordlist_sorted.txt $scratchdir/OOVwordlist.txt
