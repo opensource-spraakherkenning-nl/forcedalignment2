@@ -14,5 +14,5 @@ if [ "$1" != "--force" ]; then
 fi
 
 rm forcedalignment2_resources.tar.gz 2>/dev/null
-wget https://applejack.science.ru.nl/downloads/forcedalignment/forcedalignment2_resources.tar.gz && tar -xvzf forcedalignment2_resource.tar.gz
+wget https://applejack.science.ru.nl/downloads/forcedalignment/forcedalignment2_resources.tar.gz && tar -xvzf forcedalignment2_resources.tar.gz
 echo $?
