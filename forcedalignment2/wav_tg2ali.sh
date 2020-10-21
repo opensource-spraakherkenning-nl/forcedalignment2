@@ -11,6 +11,13 @@ RESOURCESDIRECTORY=$6
 KALDIbin2=$7 # should not be necessary - unused
 STATUSFILE=$8
 
+die() {
+    echo "-------------- fatal error ----------------" >&2
+    echo "$1" >&2
+    echo "-------------------------------------------" >&2
+    exit 2
+}
+
 ### ugly cd here
 #cd /vol/tensusers/ltenbosch/clst-asr_forced-aligner/kaldi/egs/clst-asr_forced-aligner/s5
 cd $RESOURCESDIRECTORY
@@ -19,7 +26,7 @@ cd $RESOURCESDIRECTORY
 #pSIL=0.05
 
 #./run_forced_alignment_v1.8_noBNF.sh --config ~/clst-asr-fa/align_config.rc /vol/tensusers/ltenbosch/KALDI_FA_in $pSPN $pSIL $backgroundlexicon
-./run_forced_alignment.sh --config $configfile $wavdir $pSPN $pSIL $FAlexicon $KALDIbin2 $STATUSFILE
+./run_forced_alignment.sh --config $configfile $wavdir $pSPN $pSIL $FAlexicon $KALDIbin2 $STATUSFILE || die "forced alignment failed"
 
 cd -
 
