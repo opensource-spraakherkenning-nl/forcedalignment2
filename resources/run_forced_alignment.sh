@@ -76,6 +76,9 @@ die() {
 }
 
 # Load configurations
+if [ ! -f "$config_file" ]; then
+    die "config file not found ($config_file)"
+fi
 . "$config_file"
 
 if [ "$root_data_folder" != "" ]; then
@@ -88,6 +91,15 @@ if [ ! -d "$main_folder_wav" ]; then
     echo "'$main_folder_wav' is not a folder! Please check your script arguments."
     echo $usage
     exit 1
+fi
+if ! which sed; then
+    die "sed not found"
+fi
+if ! which awk; then
+    die "awk not found"
+fi
+if ! which $python_cmd; then
+    die "python not found ($python_cmd)"
 fi
 aligndir=${main_folder_wav}/log
 target_folder=$(pwd)"/align2praat"
@@ -134,7 +146,7 @@ for file in $(find "${main_folder_wav}" -name '*.tg'); do
     fi
     if [[ $from_encoding != "" ]]
     then
-        iconv -f ${from_encoding} -t utf-8 "$file" -o "${file}-converted"
+        iconv -f ${from_encoding} -t utf-8 "$file" -o "${file}-converted" || die "iconv not found"
         mv "${file}-converted" "$file"
         sed -i 's/^\xEF\xBB\xBF//' "$file" || die "unable to converted $file to utf-8"
         echo "Converted $file from ${from_encoding} encoding to utf-8..." >&2
@@ -335,14 +347,14 @@ if [ $stage -le 3 ]; then
     echo "Starting stage 3/4 - Merging all individual alignment files into one large file..." >&2
     # Stage 3 is to merge all the CTM formatted alignments into one big text file and to merge the segment files
     mergefile="${aligndir}/merged_alignment.txt"
-    truncate -s 0 $mergefile #empty the old mergefile
+    truncate -s 0 $mergefile || die "failed to truncate $mergefile" #empty the old mergefile
     find ${aligndir} -type f -name "*.ctm" | while read -r ctmfile; do
         cat ${ctmfile} >> $mergefile
     done;
     #cat $mergefile | wc -l
 
     segmentfile="${aligndir}/segments"
-    truncate -s 0 $segmentfile #empty the old segmentfile
+    truncate -s 0 $segmentfile || die "failed to truncate $segmentfile" #empty the old segmentfile
     find ${aligndir} -type d -name "*-16khz" -print | while read -r wavdir; do
         cat "${wavdir}/segments" >> $segmentfile
     done;
@@ -373,9 +385,9 @@ if [ $stage -le 4 ]; then
         LC_ALL=C sort -n -k 10 -o ${file} ${file}
     done;
     # Adds the position of the phone in the word (beginning, centre, end or whole word)
-    ${python_cmd} ${target_folder}/phons2pron.py ${splits} ${aligndir}/pron_alignment.txt || die "phons2pron failed"
+    ${python_cmd} ${target_folder}/phons2pron.py ${splits} ${aligndir}/pron_alignment.txt >&2 || die "phons2pron failed"
     # Converts the above phone alignments to word alignments
-    ${python_cmd} ${target_folder}/pron2words.py ${aligndir} ${aligndir}/pron_alignment.txt ${aligndir}/word_alignments.txt || die "pron2words failed"
+    ${python_cmd} ${target_folder}/pron2words.py ${aligndir} ${aligndir}/pron_alignment.txt ${aligndir}/word_alignments.txt >&2 || die "pron2words failed"
     # Possibly, this is code to remove all the phone position markers, which is required for the next stage
     for file in ${splits}*; do
                 LC_ALL=C sort -n -k 10 -o ${aligndir}/temp.txt ${file}
