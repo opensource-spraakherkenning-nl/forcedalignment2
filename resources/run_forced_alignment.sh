@@ -190,7 +190,7 @@ if [ $stage -le 2 ]; then
 
             #Preparing wav.scp, segments, utt2spk, spk2utt text file and dictionary for $filename "..."
             echo ${python_cmd} data/local/data_prep.py --align_tier_name $align_tier_name --speaker_adapt SA --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --dict_file $backgroundlexicon >&2
-            ${python_cmd} data/local/data_prep.py --align_tier_name $align_tier_name --speaker_adapt SA --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --dict_file $backgroundlexicon || die "data_prep failed"
+            ${python_cmd} data/local/data_prep.py --align_tier_name $align_tier_name --speaker_adapt SA --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --dict_file $backgroundlexicon >&2 || die "data_prep failed"
 
 
             # what are the OOVs?
@@ -205,10 +205,10 @@ if [ $stage -le 2 ]; then
             #Calculating MFCC features from" + filename + "..."
             mkdir -p $datadir/mfcc
             mfccdir=$datadir/mfcc
-            steps/make_mfcc.sh --cmd "$train_cmd" --nj 1 $datadir $datadir/log $mfccdir
-            utils/fix_data_dir.sh $datadir
-            steps/compute_cmvn_stats.sh $datadir $datadir/log $mfccdir
-            utils/fix_data_dir.sh $datadir
+            steps/make_mfcc.sh --cmd "$train_cmd" --nj 1 $datadir $datadir/log $mfccdir >&2 || die "make_mfcc failed"
+            utils/fix_data_dir.sh $datadir >&2 || die "fix_data_dir failed (1)"
+            steps/compute_cmvn_stats.sh $datadir $datadir/log $mfccdir >&2 || die "compute_cmvn_stats failed"
+            utils/fix_data_dir.sh $datadir >&2 || die "fix_data_dir failed (2)"
 
             #echo RUN MMMMMMMMMMMMMMMMMMMM
             #ls -d ${datadir}/dict/*
@@ -216,14 +216,14 @@ if [ $stage -le 2 ]; then
             # Preparing language resources directory" + filename + "..."
             echo utils/prepare_lang.sh --sil_prob 0.05 --position-dependent-phones true --num-sil-states 3 ${datadir}/dict UNK ${datadir}/tmp ${datadir}/lang >&2
 
-            utils/prepare_lang.sh --sil_prob 0.05 --position-dependent-phones true --num-sil-states 3 ${datadir}/dict "<UNK>" ${datadir}/tmp ${datadir}/lang || die "prepare_lang failed"
+            utils/prepare_lang.sh --sil_prob 0.05 --position-dependent-phones true --num-sil-states 3 ${datadir}/dict "<UNK>" ${datadir}/tmp ${datadir}/lang >&2 || die "prepare_lang failed"
 
 
             #cat ${datadir}/lang/words.txt
             #echo LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
 
             # Create simple linear FST LM for better alignment
-            ${python_cmd} data/local/lang_prep_fst-lm.py --align_tier_name $align_tier_name --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --use_word_int_ids --dict_file $backgroundlexicon --pSPN $pSPN --pSIL $pSIL || continue
+            ${python_cmd} data/local/lang_prep_fst-lm.py --align_tier_name $align_tier_name --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --use_word_int_ids --dict_file $backgroundlexicon --pSPN $pSPN --pSIL $pSIL >&2 || continue
 
             # this creates a textfile G.fst.txt in $datadir/lang
             # of which the first line does not belong to the actual FST
@@ -247,7 +247,7 @@ if [ $stage -le 2 ]; then
             # 2: get path name of .wav file (use same for .tg)
             # 3: get orthography from .tg
             # assume the orthography resides on last line between double quotes
-                        echo orthography read from file $intgname >&2
+            echo orthography read from file $intgname >&2
             ortho=`cat $intgname | tail -1 | perl -ne 'm/\"(.*)\"/; printf("%s\n", $1);'`
             echo distilled ortho: $ortho
             #workingdir=$datadir
@@ -304,7 +304,7 @@ if [ $stage -le 2 ]; then
 
             # Starting the actual process of aligning the transcriptions to audio..."
             # beam settings 5, 100
-                        steps/online/nnet2/align.sh --beam 5 --retry-beam 100 --cmd "$train_cmd" --nj 1 $datadir ${datadir}/lang $acmod $aligndir/$filename_only || (echo -e "ERROR: Could not decode ${filename}!\nERROR: Look at log in $aligndir/$filename_only/log/align.1.log.");
+            steps/online/nnet2/align.sh --beam 5 --retry-beam 100 --cmd "$train_cmd" --nj 1 $datadir ${datadir}/lang $acmod $aligndir/$filename_only >&2 || die "ERROR: Could not decode ${filename}!\nERROR: Look at log in $aligndir/$filename_only/log/align.1.log."
 
             # added louis
             echo $src/bin/ali-to-phones --ctm-output $acmod/final.mdl gunzip $aligndir/$filename_only/ali.1.gz
