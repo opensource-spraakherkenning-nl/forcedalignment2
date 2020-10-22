@@ -11,6 +11,12 @@ else
     exit 2
 fi
 
+if [ ! -f resources/lexicons/lexicon_from_MARIO.txt ]; then
+    cd resources
+    ./download_resources.sh || exit 2
+    cd ..
+fi
+
 
 WEBSERVICEDIR=$(realpath forcedalignment2)
 WORKDIR=$(mktemp -d)
@@ -25,5 +31,7 @@ mkdir $WORKDIR/output
 mkdir $WORKDIR/scratch
 
 $WEBSERVICEDIR/wrapper.sh $WORKDIR/input $WORKDIR/scratch $RESOURCEDIR $WORKDIR/output $WEBSERVICEDIR $WORKDIR/status.log
+r=$?
 
 echo "(all output is in $WORKDIR)">&2
+exit $r
