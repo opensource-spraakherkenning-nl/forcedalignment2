@@ -202,7 +202,7 @@ if [ $stage -le 2 ]; then
 
             #Preparing wav.scp, segments, utt2spk, spk2utt text file and dictionary for $filename "..."
             echo ${python_cmd} data/local/data_prep.py --align_tier_name $align_tier_name --speaker_adapt SA --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --dict_file $backgroundlexicon >&2
-            ${python_cmd} data/local/data_prep.py --align_tier_name $align_tier_name --speaker_adapt SA --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --dict_file $backgroundlexicon >&2 || die "data_prep failed"
+            env LC_ALL=en_US.UTF-8 ${python_cmd} data/local/data_prep.py --align_tier_name $align_tier_name --speaker_adapt SA --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --dict_file $backgroundlexicon >&2 || die "data_prep failed"
 
 
             # what are the OOVs?
@@ -235,7 +235,7 @@ if [ $stage -le 2 ]; then
             #echo LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
 
             # Create simple linear FST LM for better alignment
-            ${python_cmd} data/local/lang_prep_fst-lm.py --align_tier_name $align_tier_name --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --use_word_int_ids --dict_file $backgroundlexicon --pSPN $pSPN --pSIL $pSIL >&2 || die "lang_prep_fst-lm.py failed: --align_tier_name $align_tier_name --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --use_word_int_ids --dict_file $backgroundlexicon --pSPN $pSPN --pSIL $pSIL"
+            env LC_ALL=en_US.UTF-8 ${python_cmd} data/local/lang_prep_fst-lm.py --align_tier_name $align_tier_name --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --use_word_int_ids --dict_file $backgroundlexicon --pSPN $pSPN --pSIL $pSIL >&2 || die "lang_prep_fst-lm.py failed: --align_tier_name $align_tier_name --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --use_word_int_ids --dict_file $backgroundlexicon --pSPN $pSPN --pSIL $pSIL"
 
             # this creates a textfile G.fst.txt in $datadir/lang
             # of which the first line does not belong to the actual FST
@@ -369,7 +369,7 @@ if [ $stage -le 4 ]; then
     # Convert the phone numbers (integers) in the text file from stage 3 to the textual phones
     #filename_only=$(basename $filename)
     #${target_folder}/id2phone.R data/local/dict_osnl/phones.txt ${aligndir}/segments ${aligndir}/merged_alignment.txt ${aligndir}/final_ali.txt
-    ${python_cmd} ${target_folder}/id2phone.py --phonefile data/local/dict_osnl/phones.txt --segmentfile ${aligndir}/segments --alignfile ${aligndir}/merged_alignment.txt --outputfile ${aligndir}/final_ali.txt || die "id2phone failed"
+    env LC_ALL=en_US.UTF-8 ${python_cmd} ${target_folder}/id2phone.py --phonefile data/local/dict_osnl/phones.txt --segmentfile ${aligndir}/segments --alignfile ${aligndir}/merged_alignment.txt --outputfile ${aligndir}/final_ali.txt || die "id2phone failed"
 
     echo ${aligndir}/final_ali.txt >&2
     cat ${aligndir}/final_ali.txt
@@ -385,9 +385,9 @@ if [ $stage -le 4 ]; then
         LC_ALL=C sort -n -k 10 -o ${file} ${file}
     done;
     # Adds the position of the phone in the word (beginning, centre, end or whole word)
-    ${python_cmd} ${target_folder}/phons2pron.py ${splits} ${aligndir}/pron_alignment.txt >&2 || die "phons2pron failed"
+    env LC_ALL=en_US.UTF-8 ${python_cmd} ${target_folder}/phons2pron.py ${splits} ${aligndir}/pron_alignment.txt >&2 || die "phons2pron failed"
     # Converts the above phone alignments to word alignments
-    ${python_cmd} ${target_folder}/pron2words.py ${aligndir} ${aligndir}/pron_alignment.txt ${aligndir}/word_alignments.txt >&2 || die "pron2words failed"
+    env LC_ALL=en_US.UTF-8 ${python_cmd} ${target_folder}/pron2words.py ${aligndir} ${aligndir}/pron_alignment.txt ${aligndir}/word_alignments.txt >&2 || die "pron2words failed"
     # Possibly, this is code to remove all the phone position markers, which is required for the next stage
     for file in ${splits}*; do
                 LC_ALL=C sort -n -k 10 -o ${aligndir}/temp.txt ${file}
