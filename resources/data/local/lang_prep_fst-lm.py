@@ -37,7 +37,7 @@ def main(argv):
     file_path = os.path.join(main_folder_annot,filename[:-len('-16khz.wav')]+'_checked.tg')
     if not(os.path.isfile(file_path)):
         file_path = os.path.join(main_folder_annot,filename[:-len('-16khz.wav')]+'.tg')
-    print("Processing file '" + filename + "'...",file=sys.stderr)
+    print("[lang_prep_fst_lm.py] Processing file '" + filename + "'...",file=sys.stderr)
 
     textgrid_fp = textgrid.Textgrid()
     textgrid_fp.read(file_path)
@@ -45,31 +45,31 @@ def main(argv):
     if trans_tier != None:
         for interval in trans_tier.intervals:
             if interval.text != "" and '<empty>' not in interval.text and '<leeg>' not in interval.text:
-                text=interval.text.replace(u'++', u''). \
-                    replace(u'.', u'').replace(u',', u'').replace(u'?', u'').replace(u'*r', u'')
+                text=interval.text.replace('++', ''). \
+                    replace('.', '').replace(',', '').replace('?', '').replace('*r', '')
                 #print(text)
-                text = "".join(c for c in text if c not in  (u'!',u'.',u':',u'?',u',',u'\n',u'\r',u'"',u'|',u';',u'(',u')',u'[',u']',u'{',u'}',u'#',u'_',u'+',u'&lt',u'&gt',u'\\'))
+                text = "".join(c for c in text if c not in  ('!','.',':','?',',','\n','\r','"','|',';','(',')','[',']','{','}','#','_','+','&lt','&gt','\\'))
                 fields = text.lower().split()
                 # louis: next lines changed since they prohibited words containing mm e.g. gezwommen to pass though
                 for ele in fields:
-                    if u'xxxxxxx' in ele or u'mmmmmmmm' in ele or u'gggggggggg' in ele:
+                    if 'xxxxxxx' in ele or 'mmmmmmmm' in ele or 'gggggggggg' in ele:
                         ind=fields.index(ele)
                         fields[ind]=args.spkr_noise_sym
-                    elif u'<opn>' in ele or u'<spk>' in ele:
+                    elif '<opn>' in ele or '<spk>' in ele:
                         ind=fields.index(ele)
                         fields[ind]=args.spkr_noise_sym
-                text = u' '.join(fields)
+                text = ' '.join(fields)
                 temp=text.strip().lower().split()
-                text = u' '.join(temp)
+                text = ' '.join(temp)
 
                 text = text.replace(args.spkr_noise_sym.lower(), args.spkr_noise_sym).replace(args.gen_noise_sym.lower(), args.gen_noise_sym).replace("<sil>", "<SIL>")
 
                 # Create a strict, linear FST LM for every utterance
-                fst_lm_fp = open(os.path.join(data_folder, "lang", "G.fst.txt"), mode="w", encoding="utf-8")
+                fst_lm_fp = open(os.path.join(data_folder, "lang", "G.fst.txt"), "w", encoding="utf-8")
                 fst_lines = [str(filename[:-len('.wav')]) + "\n"]
                 if args.use_word_int_ids:
                     words_dict = {}
-                    words_dict_fp = open(os.path.join(args.data_folder, "lang", "words.txt"), mode="r", encoding="utf-8")
+                    words_dict_fp = open(os.path.join(args.data_folder, "lang", "words.txt"), "r", encoding="utf-8")
                     for line in words_dict_fp:
                         line_split = line.split()
                         words_dict[line_split[0]] = line_split[1]

@@ -235,7 +235,7 @@ if [ $stage -le 2 ]; then
             #echo LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
 
             # Create simple linear FST LM for better alignment
-            ${python_cmd} data/local/lang_prep_fst-lm.py --align_tier_name $align_tier_name --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --use_word_int_ids --dict_file $backgroundlexicon --pSPN $pSPN --pSIL $pSIL >&2 || continue
+            ${python_cmd} data/local/lang_prep_fst-lm.py --align_tier_name $align_tier_name --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --use_word_int_ids --dict_file $backgroundlexicon --pSPN $pSPN --pSIL $pSIL >&2 || die "lang_prep_fst-lm.py failed: --align_tier_name $align_tier_name --wav_file $filename --annot_folder ${main_folder_wav} --data_folder $datadir --use_word_int_ids --dict_file $backgroundlexicon --pSPN $pSPN --pSIL $pSIL"
 
             # this creates a textfile G.fst.txt in $datadir/lang
             # of which the first line does not belong to the actual FST

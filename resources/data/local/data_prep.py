@@ -70,10 +70,9 @@ e_time_buffer = []
 file_path = os.path.join(main_folder_annot,filename[:-len('-16khz.wav')]+'_checked.tg')
 if not os.path.isfile(file_path):
     file_path = os.path.join(main_folder_annot,filename[:-len('-16khz.wav')]+'.tg')
-print("Processing file '" + filename + "'...",file=sys.stderr)
+print("[data_prep.py] Processing file '" + filename + "'...",file=sys.stderr)
 
 
-print("33333333333333333333333333333333333333333333333333333",file=sys.stderr)
 
 textgrid_fp = textgrid.Textgrid()
 textgrid_fp.read(file_path)
