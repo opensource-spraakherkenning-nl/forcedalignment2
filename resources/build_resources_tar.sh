@@ -11,5 +11,5 @@ fi
 
 cd $GITROOT/resources
 
-tar -cvzf forcedalignment2_resources.tar.gz lexicons data/local/dict_osnl/lexicon.txt G2PFST/ data/local/lang/
+tar -cvzf forcedalignment2_resources.tar.gz lexicons data/local/dict_osnl/lexicon.txt G2PFST/ data/local/lang/ exp/osnl-nnet2-online/conf/ exp/osnl-nnet2-online/final.mdl exp/osnl-nnet2-online/tree
 echo $?
