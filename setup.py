@@ -15,7 +15,7 @@ def getreadme():
 
 setup(
     name = "forcedalignment2",
-    version = "0.1", #make sure SYSTEM_VERSION in your service configuration is set to the same value!
+    version = "0.2", #make sure SYSTEM_VERSION in your service configuration is set to the same value!
     author = "Louis ten Bosch", #adapt this
     description = ("Forced Alignment 2"),
     license = "GPL",
