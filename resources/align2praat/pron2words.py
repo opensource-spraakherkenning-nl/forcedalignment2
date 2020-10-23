@@ -35,7 +35,7 @@ def getLexicon(file):
 
 # open file to write
 
-word_ali = open(wordali_file, "w", "utf-8", encoding="utf-8")
+word_ali = open(wordali_file, "w", encoding="utf-8")
 # Write columne headers (createTextGrid_word.praat expects a column header line)
 word_ali.write("file\tword\tstart\tend\n")
 
