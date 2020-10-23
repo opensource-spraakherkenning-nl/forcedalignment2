@@ -235,7 +235,7 @@ PROFILES = [
         #------------------------------------------------------------------------------------------------------------------------
         OutputTemplate('FAout',PlainTextFormat,'FAout',
             SetMetaField('encoding','utf-8'), #note that encoding is required if you work with PlainTextFormat
-            #removeextensions=[".tg"] #remove these extensions from the associated input prior to appending the output extension
+            removeextensions=[".wav",".txt"], #remove these extensions from the associated input prior to appending the output extension
             extension='.aliphw2', #set an output extension or set a filename:
             #filename='filename.stats',
             unique=True,
