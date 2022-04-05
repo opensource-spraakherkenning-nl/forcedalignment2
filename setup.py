@@ -15,12 +15,12 @@ def getreadme():
 
 setup(
     name = "forcedalignment2",
-    version = "0.2", #make sure SYSTEM_VERSION in your service configuration is set to the same value!
+    version = "0.2.1", #make sure SYSTEM_VERSION in your service configuration is set to the same value!
     author = "Louis ten Bosch", #adapt this
-    description = ("Forced Alignment 2"),
+    description = ("Forced Alignment webservice"),
     license = "GPL",
     keywords = "clam webservice rest nlp computational_linguistics rest",
-    url = "https://gitlab.science.ru.nl/ltenbosch/forcedalignment2", #update this!
+    url = "https://github.com/opensource-spraakherkenning-nl/forcedalignment2",
     packages=['forcedalignment2'],
     long_description=getreadme(),
     classifiers=[
@@ -38,5 +38,5 @@ setup(
     ],
     package_data = {'forcedalignment2':['*.wsgi','*.yml','*.sh', '*.fst', '*.perl', '*.wav', '*.tg', '*.ctm', '*.ali', '*.aliphw2', '*.oov', '*.dict'] },
     include_package_data=True,
-    install_requires=['CLAM >= 3.0']
+    install_requires=['CLAM >= 3.1.2']
 )
