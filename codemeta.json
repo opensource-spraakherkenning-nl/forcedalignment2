@@ -8,12 +8,12 @@
         }
     ],
     "@type": "SoftwareSourceCode",
-    "identifier": "align",
+    "identifier": "forcedalignment2",
     "name": "Forced Alignment 2",
-    "version": "0.2",
+    "version": "0.2.1",
     "description": "This webservice provides an output file with word alignments given an NL speech recording and a transcription.",
-    "license": "unknown",
-	"url": "https://github.com/to_be_decided",
+    "license": "https://spdx.org/licenses/AGPL-3.0-only",
+	"url": "https://github.com/opensource-spraakherkenning-nl/forcedalignment2",
     "producer": {
         "@id": "https://www.ru.nl/clst",
         "@type": "Organization",
@@ -47,18 +47,23 @@
 		}
 	],
 	"sourceOrganization": { "@id": "https://www.ru.nl/clst" },
-	"operatingSystem": "POSIX",
-	"codeRepository": "https://github.com/to_be_decided",
+	"operatingSystem": "Linux",
+	"codeRepository": "https://github.com/opensource-spraakherkenning-nl/forcedalignment2",
     "softwareRequirements": [
         {
 			"@type": "SoftwareApplication",
 			"identifier": "kaldi",
 			"name": "kaldi"
+		},
+        {
+			"@type": "SoftwareApplication",
+			"identifier": "clam",
+			"name": "CLAM"
 		}
 	],
-	"readme": "",
-	"issueTracker": "",
-	"developmentStatus": "active",
+	"readme": "https://github.com/opensource-spraakherkenning-nl/forcedalignment2/blob/master/README.md",
+	"issueTracker": "https://github.com/opensource-spraakherkenning-nl/forcedalignment2/issues",
+	"developmentStatus": "https://www.repostatus.org/#active",
 	"keywords":  [ "speech recognition", "alignment" ],
 	"dateCreated": "2020-03"
 }
