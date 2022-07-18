@@ -10,7 +10,7 @@
     "@type": "SoftwareSourceCode",
     "identifier": "forcedalignment2",
     "name": "Forced Alignment 2",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "description": "This webservice provides an output file with word alignments given an NL speech recording and a transcription.",
     "license": "https://spdx.org/licenses/AGPL-3.0-only",
 	"url": "https://github.com/opensource-spraakherkenning-nl/forcedalignment2",
