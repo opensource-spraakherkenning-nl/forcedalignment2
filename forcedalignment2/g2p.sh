@@ -19,7 +19,7 @@ die() {
 rm -rf $OOVlexout
 touch $OOVlexout
 
-# using phonetisaurus -- kick following two lines out when in webservice
+# using phonetisaurus -- uncomment following two lines when in webservice
 #KALDIbin=/vol/tensusers2/eyilmaz/local/bin
 #export PATH=$KALDIbin:$PATH # use of KALDIbin export to be avoided in webservice
 
