@@ -38,5 +38,5 @@ setup(
     ],
     package_data = {'forcedalignment2':['*.wsgi','*.yml','*.sh', '*.fst', '*.perl', '*.wav', '*.tg', '*.ctm', '*.ali', '*.aliphw2', '*.oov', '*.dict'] },
     include_package_data=True,
-    install_requires=['CLAM >= 3.1.2']
+    install_requires=['CLAM >= 3.1.4']
 )
