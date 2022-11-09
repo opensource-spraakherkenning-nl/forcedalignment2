@@ -77,10 +77,9 @@ RUN cd /opt/forcedalignment2_resources && ./download_resources.sh --force &&\
     find . -type d | xargs chmod u+rw,g+rw,a+rx &&\
     find . -type f | xargs chmod u+rw,g+rw,a+r
 
-# Patch to set proper mimetype for CLAM's logs; maximum upload size
+# Patch to set proper mimetype for CLAM's logs
 RUN sed -i 's/txt;/txt log;/' /etc/nginx/mime.types &&\
-    sed -i 's/xml;/xml xsl;/' /etc/nginx/mime.types &&\
-    sed -i 's/client_max_body_size 1m;/client_max_body_size 1000M;/' /etc/nginx/nginx.conf
+    sed -i 's/xml;/xml xsl;/' /etc/nginx/mime.types
 
 
 # Configure webserver and uwsgi server
