@@ -20,38 +20,51 @@ while (<STDIN>)
   chomp;
   s/^\s+//;
   s/\s+$//;
-  @tok = split(/\s+/);
   # is this a tag line?
-  if ((m/^\s*\[/) & (m/\]\s*$/))
+#printf("INPUT: %s\n", $_);
+#if (m/^\s*\[/) {printf("LEFT\n");}
+#if (m/\]\s*$/) {printf("RIGHT\n");}
+
+  if (m/^\s*\[.*\]\s*$/)
     { 
     $tag = $tag . "_" . $_; 
-    # remove \t from tag
+    # remove \t from tag, avoid \t in tag
     $tag =~ s/\t/ /g;
     $tagpresent = 1;
+#   printf("TAG FOUND: %s\n", $tag);
     } 
   else
     {
+    @tok = split(/\s+/);
     for ($i = 0; $i <= $#tok; $i++)
       {
       $found = $tok[$i];
 
       $cleaned = $found;
       $cleaned =~ s/\*.*$//; # strip off everything after first *
-      $cleaned =~ s/[\.\,\!\#\&\*\?\'\"\(\)\‘\…\'\"\:\;\¨]+//g; # z'n? N.A.P.?
+      if ($cleaned =~ m/^\s*\[(.*)\]\s*$/) # [x]
+        {
+        $cleaned = $1;
+        }
+      $cleaned =~ s/[\[\]\.\,\!\#\&\*\?\'\"\(\)\‘\…\'\"\:\;\¨]+//g; # z'n? N.A.P.?
+      $tagged = $found;
+#      printf("case A: %s\t%s\t%s\n", $found, $cleaned, $tagged);
 
-      if ($found =~ m/([^\[]*)(\[.*\])/)
+      if ($found =~ m/([^\[]+)(\[.*\])/) # catches x[y]
         {
         $prefix = $1;
         $postfix = $2;
         $cleaned = $prefix;
-        $cleaned =~ s/[\.\,\!\#\&\*\?\'\"\(\)\‘\…\'\"\:\;\¨]+//g; # z'n? N.A.P.?
+        $cleaned =~ s/[\[\]\.\,\!\#\&\*\?\'\"\(\)\‘\…\'\"\:\;\¨]+//g; # z'n? N.A.P.?
         $tagged = $prefix . $postfix;
+#        printf("case B: %s\t%s\t%s\n", $found, $cleaned, $tagged);
         } 
 
-      $tagged = $found;
+      #$tagged = $found;
       if (($i==0) & ($tagpresent))  {$tag =~ s/^_//; $tagged = $tag . "_" . $found; $tag = ""; $tagpresent = 0;}
 
-      printf("%s\t%s\t%s\n", $found, $cleaned, $tagged);
+      # printf("%s\t%s\t%s\n", $found, $cleaned, $tagged);
+      printf("%s\t%s\t%s\n", $found, lc($cleaned), $tagged);
       }
     }
   }
