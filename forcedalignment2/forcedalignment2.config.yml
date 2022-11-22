@@ -13,3 +13,15 @@ oauth_revoke_url: "{{ CLAM_OAUTH_REVOKE_URL }}"
 oauth_scope: "{{CLAM_OAUTH_SCOPE|json}}"
 resourcedirectory: "/opt/forcedalignment2_resources/"
 scratchdirectory: "{{root}}/scratch/"
+
+#for HTTP Basic Authentication fallback (if CLAM_USERS_FILE is set)
+users_file: "{{CLAM_USERS_FILE}}"
+realm: "{{CLAM_REALM=forcedalignment2}}"
+
+#Interface customisation
+customhtml_index: "{{CLAM_CUSTOMHTML_INDEX}}"
+customhtml_projectstart: "{{CLAM_CUSTOMHTML_PROJECTSTART}}"
+customhtml_projectdone: "{{CLAM_CUSTOMHTML_PROJECTDONE}}"
+customhtml_projectfailed: "{{CLAM_CUSTOMHTML_PROJECTFAILED}}"
+interfaceoptions: "{{CLAM_INTERFACEOPTIONS}}"
+customcss: "{{CLAM_CUSTOMCSS}}"
