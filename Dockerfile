@@ -29,6 +29,9 @@ ENV CLAM_OAUTH_CLIENT_ID=""
 ENV CLAM_OAUTH_CLIENT_SECRET=""
 #^-- always keep this private!
 
+#Set to 1 to enable development version of CLAM
+ARG CLAM_DEV=0
+
 # Install all global dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends runit curl ca-certificates nginx uwsgi uwsgi-plugin-python3 python3-pip python3-yaml python3-lxml python3-requests python3-numpy python3-pandas python3-dev autoconf automake autoconf-archive dos2unix perl moreutils procps
 
@@ -74,10 +77,9 @@ RUN cd /opt/forcedalignment2_resources && ./download_resources.sh --force &&\
     find . -type d | xargs chmod u+rw,g+rw,a+rx &&\
     find . -type f | xargs chmod u+rw,g+rw,a+r
 
-# Patch to set proper mimetype for CLAM's logs; maximum upload size
+# Patch to set proper mimetype for CLAM's logs
 RUN sed -i 's/txt;/txt log;/' /etc/nginx/mime.types &&\
-    sed -i 's/xml;/xml xsl;/' /etc/nginx/mime.types &&\
-    sed -i 's/client_max_body_size 1m;/client_max_body_size 1000M;/' /etc/nginx/nginx.conf
+    sed -i 's/xml;/xml xsl;/' /etc/nginx/mime.types
 
 
 # Configure webserver and uwsgi server
@@ -90,7 +92,8 @@ RUN cp /usr/src/webservice/runit.d/nginx.run.sh /etc/service/nginx/run &&\
     cp -f /usr/src/webservice/forcedalignment2.nginx.conf /etc/nginx/sites-enabled/default
 
 # Install the the service itself
-RUN cd /usr/src/webservice && pip install . && rm -Rf /usr/src/webservice
+RUN if [ $CLAM_DEV -eq 1 ]; then pip install git+https://github.com/proycon/clam.git; fi &&\
+    cd /usr/src/webservice && pip install . && rm -Rf /usr/src/webservice
 RUN ln -s /usr/local/lib/python3.*/dist-packages/clam /opt/clam
 
 # Remove build-time dependencies

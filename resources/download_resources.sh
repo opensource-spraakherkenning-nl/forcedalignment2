@@ -13,6 +13,6 @@ if [ "$1" != "--force" ]; then
     cd $GITROOT/resources
 fi
 
-rm forcedalignment2_resources.tar.gz 2>/dev/null
-wget https://applejack.science.ru.nl/downloads/forcedalignment/forcedalignment2_resources.tar.gz && tar -xvzf forcedalignment2_resources.tar.gz
+rm forcedalignmentFA3_resources.tar.gz 2>/dev/null
+wget https://applejack.science.ru.nl/downloads/forcedalignment/forcedalignmentFA3_resources.tar.gz && tar -xvzf forcedalignmentFA3_resources.tar.gz
 echo $?

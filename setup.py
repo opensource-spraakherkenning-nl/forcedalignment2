@@ -15,7 +15,7 @@ def getreadme():
 
 setup(
     name = "forcedalignment2",
-    version = "0.2.1", #make sure SYSTEM_VERSION in your service configuration is set to the same value!
+    version = "0.3.0", #make sure SYSTEM_VERSION in your service configuration is set to the same value!
     author = "Louis ten Bosch", #adapt this
     description = ("Forced Alignment webservice"),
     license = "GPL",
@@ -38,5 +38,5 @@ setup(
     ],
     package_data = {'forcedalignment2':['*.wsgi','*.yml','*.sh', '*.fst', '*.perl', '*.wav', '*.tg', '*.ctm', '*.ali', '*.aliphw2', '*.oov', '*.dict'] },
     include_package_data=True,
-    install_requires=['CLAM >= 3.1.2']
+    install_requires=['CLAM >= 3.1.4']
 )
