@@ -51,7 +51,7 @@ SYSTEM_DESCRIPTION = "Forced Alignment of text and audio files"
 
 #A version label of the underlying tool and/or this CLAM wrapper
 #(If you can derive this dynamically then that is strongly recommended!)
-SYSTEM_VERSION = "0.3.0"
+SYSTEM_VERSION = "0.3.1"
 
 #The author(s) of the underlying tool and/or this CLAM wrapper
 #(If you can derive this dynamically then that is strongly recommended!)
@@ -75,59 +75,14 @@ SYSTEM_EMAIL = "l.tenbosch@let.ru.nl"
 
 # ======== LOCATION ===========
 
-#Either add a section for your host here, or
-#specify these variables in an external yaml file
-#called $hostname.yaml or config.yaml and use the loadconfig() mechanism.
-#Such an external file will be looked for my default and is the recommended way.
-
-host = os.uname()[1]
-if host == "yourhostname":
-    #The root directory for CLAM, all project files, (input & output) and
-    #pre-installed corpora will be stored here. Set to an absolute path:
-    ROOT = "/tmp/clam.projects/"
-
-    #The URL of the system (If you start clam with the built-in webserver, you can override this with -P)
-    PORT= 8080
-
-    #The hostname of the system. Will be automatically determined if not set. (If you start clam with the built-in webserver, you can override this with -H)
-    #Users *must* make use of this hostname and no other (even if it points to the same IP) for the web application to work.
-    HOST = 'yourhostname'
-
-    #If the webservice runs in another webserver (e.g. apache, nginx, lighttpd), and it
-    #doesn't run at the root of the server, you can specify a URL prefix here:
-    #URLPREFIX = "/myservice/"
-
-    #Optionally, you can force the full URL CLAM has to use, rather than rely on any autodetected measures:
-    #FORCEURL = "http://yourhostname.com"
-
-    # ======== AUTHENTICATION & SECURITY ===========
-
-    #Users and passwords
-
-    #set security realm, a required component for hashing passwords (will default to SYSTEM_ID if not set)
-    #REALM = SYSTEM_ID
-
-    USERS = None #no user authentication/security (this is not recommended for production environments!)
-    #If you want to enable user-based security, you can define a dictionary
-    #of users and (hashed) passwords here. The actual authentication will proceed
-    #as HTTP Digest Authentication. Although being a convenient shortcut,
-    #using pwhash and plaintext password in this code is not secure!!
-
-    #USERS = { user1': '4f8dh8337e2a5a83734b','user2': pwhash('username', REALM, 'secret') }
-
-    ADMINS = None #List of usernames that are administrator and can access the administrative web-interface (on URL /admin/)
-else:
-    #This invokes the automatic loader, do not change it;
-    #it will try to find a file named $system_id.$hostname.yml or just $hostname.yml, where $hostname
-    #is the auto-detected hostname of this system. Alternatively, it tries a static $system_id.config.yml or just config.yml .
-    #You can also set an environment variable CONFIGFILE to specify the exact file to load at run-time.
-    #It will look in several paths including the current working directory and the path this settings script is loaded from.
-    #Such an external configuration file simply defines variables that will be imported here. If it fails to find
-    #a configuration file, an exception will be raised.
-    loadconfig(__name__)
-
-
-
+#This invokes the automatic loader, do not change it;
+#it will try to find a file named $system_id.$hostname.yml or just $hostname.yml, where $hostname
+#is the auto-detected hostname of this system. Alternatively, it tries a static $system_id.config.yml or just config.yml .
+#You can also set an environment variable CONFIGFILE to specify the exact file to load at run-time.
+#It will look in several paths including the current working directory and the path this settings script is loaded from.
+#Such an external configuration file simply defines variables that will be imported here. If it fails to find
+#a configuration file, an exception will be raised.
+loadconfig(__name__)
 
 
 #Amount of free memory required prior to starting a new process (in MB!), Free Memory + Cached (without swap!). Set to 0 to disable this check (not recommended)
