@@ -51,7 +51,7 @@ SYSTEM_DESCRIPTION = "Forced Alignment of text and audio files"
 
 #A version label of the underlying tool and/or this CLAM wrapper
 #(If you can derive this dynamically then that is strongly recommended!)
-SYSTEM_VERSION = "0.2.2"
+SYSTEM_VERSION = "0.3.0"
 
 #The author(s) of the underlying tool and/or this CLAM wrapper
 #(If you can derive this dynamically then that is strongly recommended!)
@@ -279,7 +279,7 @@ PROFILES = [
 
 ##COMMAND = WEBSERVICEDIR + "/forcedalignment_wrapper.sh $STATUSFILE $INPUTDIRECTORY $OUTPUTDIRECTORY " + SCRATCHDIRECTORY +" "+RESOURCEDIRECTORY +" "+ WEBSERVICEDIR
 
-COMMAND = WEBSERVICEDIR + "/wrapper.sh $INPUTDIRECTORY " + SCRATCHDIRECTORY +" "+ RESOURCEDIRECTORY + " $OUTPUTDIRECTORY " + WEBSERVICEDIR + " $STATUSFILE"
+COMMAND = WEBSERVICEDIR + "/wrapperFA3.sh $INPUTDIRECTORY " + SCRATCHDIRECTORY +" "+ RESOURCEDIRECTORY + " $OUTPUTDIRECTORY " + WEBSERVICEDIR + " $STATUSFILE"
 
 #COMMAND = WEBSERVICEDIR + "/wrapper.sh $INPUTDIRECTORY " + SCRATCHDIRECTORY +" "+ RESOURCEDIRECTORY + " $INPUTDIRECTORY " + WEBSERVICEDIR + " $STATUSFILE"
 

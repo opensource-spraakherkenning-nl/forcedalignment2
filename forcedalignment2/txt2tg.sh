@@ -62,7 +62,7 @@ for txtfile in $(ls $workingdir/*txt); do
   fi
 
 
-  rm $workingdir/tmpA $workingdir/tmp[BCDE]
+#  rm $workingdir/tmpA $workingdir/tmp[BCDE]
 
 # no newline after or in $text
 text=`echo -n $text | tr '\n' ' '`

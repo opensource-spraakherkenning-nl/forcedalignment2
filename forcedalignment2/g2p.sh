@@ -19,8 +19,8 @@ die() {
 rm -rf $OOVlexout
 touch $OOVlexout
 
-# using phonetisaurus
-#KALDIbin was /vol/tensusers2/eyilmaz/local/bin
+# using phonetisaurus -- uncomment following two lines when in webservice
+#KALDIbin=/vol/tensusers2/eyilmaz/local/bin
 #export PATH=$KALDIbin:$PATH # use of KALDIbin export to be avoided in webservice
 
 #phonetisaurus must be in PATH in g2p.sh IMPORTANT
@@ -33,9 +33,15 @@ for tgfile in $(ls $workingdir/*.tg); do
 done
 
 cat $scratchdir/OOVwordlist.txt | sort | uniq > $scratchdir/OOVwordlist_sorted.txt
+
+echo applying g2p for following words:
+cat $scratchdir/OOVwordlist_sorted.txt
+echo ------
+
 #phonetisaurus-apply --model /home/ltenbosch/KALDI_g2p/train_dutch/model.fst --word_list $scratchdir/OOVwordlist_sorted.txt -n 1 > $OOVlexout
 phonetisaurus-apply --model $G2PFSTfile --word_list $scratchdir/OOVwordlist_sorted.txt -n 1 > $OOVlexout || die "phonetisaurus-apply failed"
 
+echo $OOVlexout created
 
 rm $scratchdir/OOVwordlist_sorted.txt $scratchdir/OOVwordlist.txt
 

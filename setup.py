@@ -15,8 +15,8 @@ def getreadme():
 
 setup(
     name = "forcedalignment2",
-    version = "0.2.2", #make sure SYSTEM_VERSION in your service configuration and codemeta.json is set to the same value!
-    author = "Louis ten Bosch",
+    version = "0.3.0", #make sure SYSTEM_VERSION in your service configuration is set to the same value!
+    author = "Louis ten Bosch", #adapt this
     description = ("Forced Alignment webservice"),
     license = "AGPL-3.0-only",
     keywords = "clam webservice rest nlp computational_linguistics rest",
