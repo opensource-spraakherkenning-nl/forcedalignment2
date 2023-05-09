@@ -15,7 +15,7 @@ def getreadme():
 
 setup(
     name = "forcedalignment2",
-    version = "0.3.1", #make sure SYSTEM_VERSION in your service configuration is set to the same value!
+    version = "0.3.2", #make sure SYSTEM_VERSION in your service configuration is set to the same value!
     author = "Louis ten Bosch",
     description = ("Forced Alignment webservice"),
     license = "AGPL-3.0-only",
